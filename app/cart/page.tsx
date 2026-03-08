@@ -119,7 +119,7 @@ export default function CartPage() {
     const preOrderItems = items.filter(i => i.stockStatus === 'pre-order');
 
     return (
-        <div className="min-h-screen bg-[#FDFEFE] pt-24 pb-32">
+        <div className="min-h-screen bg-[#FDFEFE] pt-24 pb-[calc(env(safe-area-inset-bottom)+150px)]">
             <div className="max-w-2xl mx-auto px-4">
                 {/* Header with Glassmorphism */}
                 <motion.div

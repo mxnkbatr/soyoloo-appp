@@ -30,8 +30,8 @@ export default function TaobaoStickyFooter() {
     }, [selectedTotalPrice, motionPrice]);
 
     return (
-        <div className="fixed bottom-0 inset-x-0 z-[60] pb-safe">
-            <div className="max-w-md mx-auto px-4 pb-6">
+        <div className="fixed bottom-[calc(env(safe-area-inset-bottom)+80px)] lg:bottom-0 inset-x-0 z-[60] pb-safe lg:pb-0">
+            <div className="max-w-md mx-auto px-4 lg:pb-6">
                 <motion.div
                     initial={{ y: 100, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
