@@ -311,8 +311,15 @@ export default function HomePage() {
               <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : sortedProducts.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-gray-500">No products found.</p>
+            <div className="text-center py-16 px-4">
+              <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" strokeWidth={1} />
+              <p className="text-gray-500 font-medium">
+                {activeFilter === 'Захиалга'
+                  ? 'Захиалгаар авах бараа байхгүй байна'
+                  : activeFilter === 'Бэлэн'
+                    ? 'Бэлэн бараа байхгүй байна'
+                    : 'Бараа олдсонгүй'}
+              </p>
             </div>
           ) : (
             <>
