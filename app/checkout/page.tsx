@@ -37,7 +37,8 @@ export default function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isSignedIn } = useUser();
-  const { items, getTotalPrice, clearCart } = useCartStore();
+  const { items, getSelectedTotalPrice, clearCart } = useCartStore();
+  const selectedItems = items.filter(item => item.selected);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [addressTab, setAddressTab] = useState<'saved' | 'new'>('saved');
@@ -120,11 +121,11 @@ export default function CheckoutPage() {
   };
 
   const DELIVERY_FEE = deliveryMethod === 'delivery' ? 5000 : 0;
-  const grandTotal = getTotalPrice() + DELIVERY_FEE;
+  const grandTotal = getSelectedTotalPrice() + DELIVERY_FEE;
 
-  const hasPreOrder = items.some(item => (item as any).stockStatus === 'pre-order');
-  const inStockCount = items.filter(item => (item as any).stockStatus !== 'pre-order').length;
-  const preOrderCount = items.filter(item => (item as any).stockStatus === 'pre-order').length;
+  const hasPreOrder = selectedItems.some(item => (item as any).stockStatus === 'pre-order');
+  const inStockCount = selectedItems.filter(item => (item as any).stockStatus !== 'pre-order').length;
+  const preOrderCount = selectedItems.filter(item => (item as any).stockStatus === 'pre-order').length;
   const deliveryEstimate = hasPreOrder ? '7-14 хоног' : 'Өнөөдөр - Маргааш';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -144,14 +145,14 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (items.length === 0) { toast.error('Таны сагс хоосон байна'); return; }
+    if (selectedItems.length === 0) { toast.error('Таны сагс хоосон байна'); return; }
     if (!validateForm()) return;
     setIsSubmitting(true);
 
     try {
       const orderData = {
         userId: user?.id,
-        items: items.map(item => ({
+        items: selectedItems.map(item => ({
           productId: item.id,
           productName: item.name,
           productImage: item.image || null,
@@ -222,7 +223,7 @@ export default function CheckoutPage() {
     );
   }
 
-  if (items.length === 0) {
+  if (selectedItems.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -291,13 +292,13 @@ export default function CheckoutPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs uppercase font-bold text-gray-500 mb-1.5 ml-1">Овог нэр <span className="text-red-500">*</span></label>
-                  <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="Жишээ: Бат Болд" className="w-full px-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium" required />
+                  <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="Жишээ: Бат Болд" className="w-full px-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium text-base" required />
                 </div>
                 <div>
                   <label className="block text-xs uppercase font-bold text-gray-500 mb-1.5 ml-1">Утасны дугаар <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="99119911" className="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium" required />
+                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="99119911" className="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium text-base" required />
                   </div>
                 </div>
               </div>
@@ -399,7 +400,7 @@ export default function CheckoutPage() {
                         value={formData.label}
                         onChange={handleInputChange}
                         placeholder="Гэр, Ажил г.м"
-                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium"
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium text-base"
                       />
                     </div>
 
@@ -410,7 +411,7 @@ export default function CheckoutPage() {
                           name="city"
                           value={formData.city}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium appearance-none"
+                          className="w-full px-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium appearance-none text-base"
                         >
                           <option value="Улаанбаатар">Улаанбаатар</option>
                           <option value="Дархан">Дархан</option>
@@ -423,7 +424,7 @@ export default function CheckoutPage() {
                           name="district"
                           value={formData.district}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium appearance-none"
+                          className="w-full px-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium appearance-none text-base"
                         >
                           <option value="">Сонгох...</option>
                           <option value="Баянзүрх">Баянзүрх</option>
@@ -444,7 +445,7 @@ export default function CheckoutPage() {
                         onChange={handleInputChange}
                         placeholder="Хороо, гудамж, байр, орц, давхар, тоот..."
                         rows={2}
-                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium resize-none"
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium resize-none text-base"
                       />
                     </div>
 
@@ -456,7 +457,7 @@ export default function CheckoutPage() {
                         value={formData.notes}
                         onChange={handleInputChange}
                         placeholder="Орцны код, хүргэлтийн үеийн заавар г.м"
-                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium"
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none font-medium text-base"
                       />
                     </div>
 
@@ -513,7 +514,7 @@ export default function CheckoutPage() {
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900">Захиалгын хураангуй</h2>
               </div>
               <div className="space-y-4 mb-6 max-h-60 sm:max-h-96 overflow-y-auto pr-1 custom-scrollbar">
-                {items.map((item, idx) => (
+                {selectedItems.map((item, idx) => (
                   <div key={item.id || idx} className="flex gap-3 p-2 hover:bg-gray-50 rounded-xl transition-colors">
                     <div className="relative w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden border border-gray-100">
                       <Image src={item.image || '/placeholder.png'} alt={item.name} fill className="object-cover" sizes="56px" />
@@ -561,7 +562,7 @@ export default function CheckoutPage() {
               )}
 
               <div className="space-y-3 pt-6 border-t border-dashed border-gray-200">
-                <div className="flex justify-between text-sm text-gray-600"><span>Барааны үнэ:</span><span className="font-bold">{formatPrice(getTotalPrice())}</span></div>
+                <div className="flex justify-between text-sm text-gray-600"><span>Барааны үнэ:</span><span className="font-bold">{formatPrice(getSelectedTotalPrice())}</span></div>
                 <div className="flex justify-between text-sm text-gray-600"><span>Хүргэлт:</span><span className="font-bold text-gray-900">{DELIVERY_FEE === 0 ? '0₮' : formatPrice(DELIVERY_FEE)}</span></div>
                 <div className="flex justify-between text-lg font-black pt-3 border-t border-gray-100"><span>Нийт:</span><span className="text-orange-600">{formatPrice(grandTotal)}</span></div>
               </div>

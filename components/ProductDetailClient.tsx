@@ -230,7 +230,7 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
 
   const rating = product.rating ?? 4.5;
   const router = useRouter();
-  const { addItem } = useCartStore();
+  const { addItem, toggleAllSelection } = useCartStore();
   const { t } = useTranslation();
 
   const { scrollY } = useScroll();
@@ -294,6 +294,7 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
   };
 
   const handleBuyNow = () => {
+    toggleAllSelection(false);
     addItem({ ...product, image: product.image || '', rating: product.rating ?? 0, stockStatus: product.stockStatus as any, description: product.description || undefined });
     router.push('/checkout');
   };
@@ -320,7 +321,7 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
       `}} />
 
-      <div className="min-h-screen pb-32 md:pb-20 font-dm bg-[#FAFAF9] text-slate-600 overflow-hidden">
+      <div className="min-h-screen pb-[140px] md:pb-20 font-dm bg-[#FAFAF9] text-slate-600 overflow-hidden">
 
         {/* ── Sticky header ─────────────────────────────────────────────── */}
         <AnimatePresence>
@@ -358,7 +359,7 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
           )}
         </AnimatePresence>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-14">
+        <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 pt-0 pb-6 md:py-14">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
 
             {/* ── LEFT: GALLERY ───────────────────────────────────────────── */}
@@ -366,7 +367,8 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
 
               {/* Main image */}
               <div
-                className="group relative aspect-square w-full rounded-3xl bg-white border border-slate-100 shadow-sm overflow-hidden"
+                className="group relative w-full bg-white overflow-hidden md:rounded-3xl md:border md:border-slate-100 md:shadow-sm md:aspect-square"
+                style={{ aspectRatio: '1/1' }}
                 onMouseMove={mainImgPhysics.handleMouseMove}
                 onMouseEnter={mainImgPhysics.handleMouseEnter}
                 onMouseLeave={mainImgPhysics.handleMouseLeave}
@@ -421,7 +423,7 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
                     className="flex w-full h-full"
                   >
                     {images.map((img, i) => (
-                      <div key={i} className="w-full h-full shrink-0 relative p-6">
+                      <div key={i} className="w-full h-full shrink-0 relative p-3 md:p-6">
                         <Image src={img} alt="" fill className="object-contain pointer-events-none" priority={i === 0} />
                       </div>
                     ))}
@@ -513,7 +515,7 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
             </div>
 
             {/* ── RIGHT: INFO PANEL ────────────────────────────────────────── */}
-            <div ref={orb.containerRef} className="lg:col-span-6 xl:col-span-5 relative">
+            <div ref={orb.containerRef} className="lg:col-span-6 xl:col-span-5 relative md:mt-0 -mt-6">
 
               {/* Floating orb */}
               <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 rounded-[3rem] hidden md:block" style={{ margin: '-2rem' }}>
@@ -524,7 +526,7 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
                 />
               </div>
 
-              <div className="relative z-10 flex flex-col gap-6">
+              <div className="relative z-10 flex flex-col gap-5 bg-white md:bg-transparent rounded-t-[2rem] md:rounded-none px-5 md:px-0 pt-6 md:pt-0 shadow-[0_-8px_40px_rgba(0,0,0,0.07)] md:shadow-none">
 
                 {/* Brand & rating row */}
                 <div className="flex items-center justify-between flex-wrap gap-3">
@@ -541,13 +543,13 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
                 </div>
 
                 {/* Title */}
-                <h1 className="font-sora font-bold text-3xl md:text-4xl text-slate-900 leading-[1.12] tracking-tight">
+                <h1 className="font-sora font-bold text-[22px] md:text-4xl text-slate-900 leading-[1.2] tracking-tight">
                   {product.name}
                 </h1>
 
                 {/* Price card with parallax tilt */}
                 <div
-                  className="bg-white rounded-3xl p-5 border border-orange-100 shadow-sm relative overflow-hidden"
+                  className="bg-[#FFF8F5] md:bg-white rounded-2xl md:rounded-3xl p-4 md:p-5 border border-orange-100 shadow-sm relative overflow-hidden"
                   onMouseMove={tilt.handleMouseMove}
                   onMouseEnter={tilt.handleMouseEnter}
                   onMouseLeave={tilt.handleMouseLeave}
@@ -557,7 +559,7 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
 
                     {/* Price row */}
                     <div className="flex items-end gap-4 flex-wrap">
-                      <span className="font-sora font-extrabold text-4xl lg:text-5xl text-[#FF5000] tracking-tighter leading-none">
+                      <span className="font-sora font-extrabold text-[32px] md:text-4xl lg:text-5xl text-[#FF5000] tracking-tighter leading-none">
                         {formatPrice(product.price)}
                       </span>
                       {product.originalPrice && (
@@ -593,21 +595,21 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
                 </p>
 
                 {/* Spec pills */}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 md:flex-wrap">
                   {product.brand && (
-                    <span className="bg-slate-50 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold border border-slate-100 shadow-sm">
+                    <span className="bg-slate-50 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold border border-slate-100 shadow-sm shrink-0">
                       🏷️ {product.brand}
                     </span>
                   )}
                   {product.model && (
-                    <span className="bg-slate-50 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold border border-slate-100 shadow-sm">
+                    <span className="bg-slate-50 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold border border-slate-100 shadow-sm shrink-0">
                       📱 {product.model}
                     </span>
                   )}
-                  <span className="bg-slate-50 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold border border-slate-100 shadow-sm">
+                  <span className="bg-slate-50 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold border border-slate-100 shadow-sm shrink-0">
                     📦 {product.delivery || 'Хэвийн хүргэлт'}
                   </span>
-                  <span className="bg-slate-50 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold border border-slate-100 shadow-sm">
+                  <span className="bg-slate-50 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold border border-slate-100 shadow-sm shrink-0">
                     💳 QPay · SocialPay
                   </span>
                 </div>
@@ -618,7 +620,7 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
                 <div className="space-y-4">
                   {/* Quantity */}
                   <div className="flex items-center gap-4">
-                    <span className="font-bold text-slate-900 text-sm">Тоо:</span>
+                    <span className="font-bold text-slate-900 text-sm">Тоо хэмжээ:</span>
                     <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm">
                       <div
                         onMouseMove={minusPhysics.handleMouseMove}
@@ -629,7 +631,7 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
                           ref={minusPhysics.ref}
                           whileTap={{ scale: 0.9 }}
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                          className="w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 hover:text-[#FF5000] hover:bg-orange-50 transition-colors"
+                          className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl text-slate-600 hover:text-[#FF5000] hover:bg-orange-50 transition-colors"
                         >
                           <Minus className="w-4 h-4" strokeWidth={3} />
                         </motion.button>
@@ -644,7 +646,7 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
                           ref={plusPhysics.ref}
                           whileTap={{ scale: 0.9 }}
                           onClick={() => setQuantity(Math.min(product.inventory ?? 10, quantity + 1))}
-                          className="w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 hover:text-[#FF5000] hover:bg-orange-50 transition-colors"
+                          className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl text-slate-600 hover:text-[#FF5000] hover:bg-orange-50 transition-colors"
                         >
                           <Plus className="w-4 h-4" strokeWidth={3} />
                         </motion.button>
@@ -696,8 +698,8 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
           </div>
 
           {/* ── RELATED ───────────────────────────────────────────────────── */}
-          <div className="mt-16 md:mt-24">
-            <h2 className="font-sora font-bold text-2xl md:text-3xl text-slate-900 mb-8 border-l-4 border-[#FF5000] pl-4">
+          <div className="mt-8 md:mt-24 px-4 md:px-0">
+            <h2 className="font-sora font-bold text-xl md:text-3xl text-slate-900 mb-5 md:mb-8 border-l-4 border-[#FF5000] pl-4">
               Төстэй бараа
             </h2>
             <RelatedProducts products={product.relatedProducts || []} />
@@ -737,21 +739,43 @@ export default function ProductDetailClient({ product }: { product: ProductDetai
 
       {/* ── Mobile bottom CTA ─────────────────────────────────────────────── */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
-        style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(24px)', borderTop: '1px solid rgba(0,0,0,0.06)' }}
+        className="fixed left-0 right-0 z-[60] md:hidden"
+        style={{ bottom: '56px', background: 'rgba(255,255,255,0.98)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderTop: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 -4px 20px rgba(0,0,0,0.06)' }}
       >
-        <div className="flex items-center gap-3 px-4 pt-3 pb-safe pb-4">
-          <div className="flex-1 flex flex-col pl-1">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Нийт үнэ</span>
-            <span className="font-sora font-bold text-xl text-[#FF5000] leading-none">{formatPrice(product.price * quantity)}</span>
+        <div className="flex items-center gap-3 px-4 pt-3 pb-4">
+          {/* Price */}
+          <div className="flex flex-col justify-center min-w-0 mr-auto">
+            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+              Нийт үнэ
+            </span>
+            <span className="font-sora font-extrabold text-[18px] text-[#FF5000] leading-none truncate">
+              {formatPrice(product.price * quantity)}
+            </span>
+            {quantity > 1 && (
+              <span className="text-[10px] text-slate-400 font-bold mt-0.5">
+                {quantity}ш × {formatPrice(product.price)}
+              </span>
+            )}
           </div>
-          <motion.button whileTap={{ scale: 0.95 }} onClick={handleAddToCart}
-            className="px-5 py-3.5 rounded-2xl bg-slate-100 text-slate-900 font-bold text-sm active:bg-slate-200">
+
+          {/* Сагслах */}
+          <motion.button
+            whileTap={{ scale: 0.93 }}
+            onClick={handleAddToCart}
+            className="flex items-center justify-center gap-1.5 px-5 py-3.5 rounded-2xl bg-slate-100 text-slate-900 font-bold text-sm active:bg-slate-200 transition-colors shrink-0"
+          >
+            <ShoppingBag className="w-4 h-4" strokeWidth={2} />
             Сагслах
           </motion.button>
-          <motion.button whileTap={{ scale: 0.95 }} onClick={handleBuyNow}
-            className="px-6 py-3.5 rounded-2xl bg-[#FF5000] text-white font-bold text-sm shadow-lg shadow-orange-500/25">
-            Худалдан авах
+
+          {/* Худалдан авах */}
+          <motion.button
+            whileTap={{ scale: 0.93 }}
+            onClick={handleBuyNow}
+            className="flex items-center justify-center gap-1.5 px-5 py-3.5 rounded-2xl bg-[#FF5000] text-white font-bold text-sm shadow-lg shadow-orange-500/30 active:bg-[#E64500] transition-colors shrink-0"
+          >
+            Авах
+            <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
           </motion.button>
         </div>
       </div>
@@ -772,14 +796,14 @@ function ProductInfoTabs({ product }: { product: any }) {
   const [activeTab, setActiveTab] = useState('description');
 
   return (
-    <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-100 font-dm">
+    <div className="bg-white rounded-3xl p-4 md:p-10 shadow-sm border border-slate-100 font-dm">
       {/* Tab bar */}
       <div className="flex border-b border-slate-100">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-5 py-4 text-sm font-bold relative transition-colors ${activeTab === tab.id ? 'text-[#FF5000]' : 'text-slate-400 hover:text-slate-700'}`}
+            className={`px-4 py-3 md:px-5 md:py-4 text-sm font-bold relative transition-colors ${activeTab === tab.id ? 'text-[#FF5000]' : 'text-slate-400 hover:text-slate-700'}`}
           >
             {tab.label}
             {activeTab === tab.id && (

@@ -54,8 +54,10 @@ export default function PremiumProductCard({ product, isFeatured = false }: { pr
     return (
         <motion.div
             variants={itemVariants}
-            className="group h-full"
-            whileHover={{ y: -8 }}
+            className="group h-full touch-action-manipulation"
+            style={{ touchAction: 'manipulation' }}
+            whileHover={{ y: -4 }}
+            whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
             <Link href={`/product/${product.id}`} className="block h-full">

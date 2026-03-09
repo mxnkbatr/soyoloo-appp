@@ -140,7 +140,7 @@ export default function AddProductForm() {
           rows={3}
           disabled={isPending}
           placeholder="Product description..."
-          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#FF8C00] focus:ring-2 focus:ring-[#FF8C00]/20 outline-none transition-all resize-none disabled:bg-slate-50 disabled:cursor-not-allowed"
+          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#FF8C00] focus:ring-2 focus:ring-[#FF8C00]/20 outline-none transition-all resize-none disabled:bg-slate-50 disabled:cursor-not-allowed text-base"
         />
       </div>
 
@@ -163,8 +163,8 @@ export default function AddProductForm() {
                   setFormData({ ...formData, sections: newSections });
                 }}
                 className={`px-4 py-2 rounded-full border text-xs font-bold transition-all flex items-center gap-2 ${isSelected
-                    ? 'bg-orange-500 border-orange-500 text-white shadow-md'
-                    : 'bg-white border-slate-200 text-slate-500 hover:border-orange-200'
+                  ? 'bg-orange-500 border-orange-500 text-white shadow-md'
+                  : 'bg-white border-slate-200 text-slate-500 hover:border-orange-200'
                   }`}
               >
                 <span>{section.icon}</span>
@@ -224,7 +224,7 @@ export default function AddProductForm() {
             step="0.01"
             disabled={isPending}
             placeholder="e.g., 1299000"
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#FF8C00] focus:ring-2 focus:ring-[#FF8C00]/20 outline-none transition-all disabled:bg-slate-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#FF8C00] focus:ring-2 focus:ring-[#FF8C00]/20 outline-none transition-all disabled:bg-slate-50 disabled:cursor-not-allowed text-base"
           />
         </div>
       )}
@@ -260,7 +260,7 @@ export default function AddProductForm() {
           value={formData.category}
           onChange={handleChange}
           disabled={isPending}
-          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#FF8C00] focus:ring-2 focus:ring-[#FF8C00]/20 outline-none transition-all disabled:bg-slate-50 disabled:cursor-not-allowed bg-white"
+          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#FF8C00] focus:ring-2 focus:ring-[#FF8C00]/20 outline-none transition-all disabled:bg-slate-50 disabled:cursor-not-allowed bg-white text-base"
         >
           {categories.map((cat) => (
             <option key={cat.value} value={cat.value}>
@@ -281,7 +281,7 @@ export default function AddProductForm() {
           value={formData.stockStatus}
           onChange={handleChange}
           disabled={isPending}
-          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#FF8C00] focus:ring-2 focus:ring-[#FF8C00]/20 outline-none transition-all disabled:bg-slate-50 disabled:cursor-not-allowed bg-white"
+          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-[#FF8C00] focus:ring-2 focus:ring-[#FF8C00]/20 outline-none transition-all disabled:bg-slate-50 disabled:cursor-not-allowed bg-white text-base"
         >
           <option value="in-stock">In Stock (Ready to Ship)</option>
           <option value="pre-order">Pre-Order</option>

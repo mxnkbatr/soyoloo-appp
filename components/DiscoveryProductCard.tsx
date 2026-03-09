@@ -80,10 +80,11 @@ export default function DiscoveryProductCard({ product, index = 0, showTrendingB
 
   const InnerCard = () => (
     <motion.div
-      whileHover={{ scale: 1.05, y: -8 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{ scale: 1.02, y: -4 }}
+      whileTap={{ scale: 0.98 }}
       transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-      className="relative bg-white rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-slate-100 h-full flex flex-col"
+      className="relative bg-white rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-slate-100 h-full flex flex-col touch-action-manipulation"
+      style={{ touchAction: 'manipulation' }}
     >
       {/* Image Container */}
       <div className="relative aspect-square bg-gray-50/50 overflow-hidden shrink-0">
