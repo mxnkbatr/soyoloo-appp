@@ -17,57 +17,24 @@ import MobileHero from '@/components/MobileHero';
 import MobileProductGrid from '@/components/MobileProductGrid';
 import InfiniteScrollTrigger from '@/components/InfiniteScrollTrigger';
 
-type FilterType = 'all' | 'Бэлэн' | 'Захиалга' | 'Шинэ' | 'Хямдрал' | string;
+type FilterType = 'all' | 'in-stock' | 'pre-order';
 type SortType = 'newest' | 'price-low' | 'price-high' | 'name-az';
 
 export default function HomePage() {
   const { currency, convertPrice } = useLanguage();
   const { t } = useTranslation();
-
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const { products: allProducts, isLoading: loading, isLoadingMore, isReachingEnd, size, setSize, error } = useProducts();
+  const { products: allProducts, isLoading: loading, isLoadingMore, isReachingEnd, size, setSize, error } = useProducts({
+    stockStatus: activeFilter !== 'all' ? activeFilter : undefined
+  });
 
   const [sortBy, setSortBy] = useState<SortType>('name-az');
   const [minPrice, setMinPrice] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<string>('');
   const [showPriceFilter, setShowPriceFilter] = useState(false);
 
-  // Apply active tab filter
-  let filteredProducts: Product[];
-
-  if (activeFilter === 'all') {
-    // Бүгд — бүх бараа
-    filteredProducts = [...allProducts];
-  } else if (activeFilter === 'Бэлэн') {
-    // Бэлэн бараа — stockStatus === 'in-stock' (эсвэл тодорхойгүй бол default нь in-stock)
-    filteredProducts = allProducts.filter((p: Product) =>
-      !p.stockStatus || p.stockStatus === 'in-stock'
-    );
-  } else if (activeFilter === 'Захиалга') {
-    // Захиалгаар — stockStatus === 'pre-order'
-    filteredProducts = allProducts.filter((p: Product) =>
-      p.stockStatus === 'pre-order'
-    );
-  } else if (activeFilter === 'Шинэ') {
-    // Шинэ бараа — sections-д 'Шинэ' агуулсан эсвэл сүүлийн 30 хоногт нэмэгдсэн
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    filteredProducts = allProducts.filter((p: Product) =>
-      p.sections?.includes('Шинэ') ||
-      (p.createdAt && new Date(p.createdAt) > thirtyDaysAgo)
-    );
-  } else if (activeFilter === 'Хямдрал') {
-    // Хямдрал — originalPrice байгаа болон price < originalPrice
-    filteredProducts = allProducts.filter((p: Product) =>
-      p.originalPrice && p.originalPrice > p.price
-    );
-  } else {
-    // Бусад section-based filter (Онцлох гэх мэт)
-    filteredProducts = allProducts.filter((p: Product) =>
-      p.sections?.includes(activeFilter)
-    );
-  }
-
   // Apply price filter
+  let filteredProducts = [...allProducts];
   const minPriceNum = minPrice ? parseFloat(minPrice) : 0;
   const maxPriceNum = maxPrice ? parseFloat(maxPrice) : Infinity;
 
@@ -161,32 +128,22 @@ export default function HomePage() {
                 <div className="flex items-center gap-1.5 lg:gap-2">
                   <Sparkles className="w-3 h-3 lg:w-3.5 lg:h-3.5" strokeWidth={1.2} />
                   <span>Бүгд</span>
-                  {allProducts.length > 0 && (
-                    <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black ${activeFilter === 'all' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
-                      }`}>
-                      {allProducts.length}
-                    </span>
-                  )}
                 </div>
               </motion.button>
 
-              {([
-                { key: 'Бэлэн', icon: Package },
-                { key: 'Захиалга', icon: Clock },
-              ] as const).map(({ key, icon: Icon }) => {
-                const isActive = activeFilter === key;
-
-                // Тоо тооцох
-                const count = key === 'Бэлэн'
-                  ? allProducts.filter((p: Product) => !p.stockStatus || p.stockStatus === 'in-stock').length
-                  : allProducts.filter((p: Product) => p.stockStatus === 'pre-order').length;
+              {['Бэлэн', 'Захиалга'].map((label) => {
+                const section = label === 'Бэлэн' ? 'in-stock' : 'pre-order';
+                const Icon = label === 'Бэлэн' ? Package
+                  : label === 'Захиалга' ? Clock
+                    : Tag;
+                const isActive = activeFilter === section;
 
                 return (
                   <motion.button
-                    key={key}
+                    key={section}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setActiveFilter(key)}
+                    onClick={() => setActiveFilter(section as any)}
                     className={`px-4 py-2 lg:px-5 lg:py-2.5 rounded-2xl font-bold text-xs lg:text-sm transition-all duration-300 whitespace-nowrap ${isActive
                       ? 'bg-[#FF5000] text-white shadow-lg shadow-orange-500/30'
                       : 'bg-white/50 text-gray-600 hover:bg-white border border-gray-100'
@@ -194,13 +151,7 @@ export default function HomePage() {
                   >
                     <div className="flex items-center gap-1.5 lg:gap-2">
                       <Icon className="w-3 h-3 lg:w-3.5 lg:h-3.5" strokeWidth={1.2} />
-                      <span>{key}</span>
-                      {count > 0 && (
-                        <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
-                          }`}>
-                          {count}
-                        </span>
-                      )}
+                      <span>{label}</span>
                     </div>
                   </motion.button>
                 );
@@ -311,15 +262,8 @@ export default function HomePage() {
               <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : sortedProducts.length === 0 ? (
-            <div className="text-center py-16 px-4">
-              <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" strokeWidth={1} />
-              <p className="text-gray-500 font-medium">
-                {activeFilter === 'Захиалга'
-                  ? 'Захиалгаар авах бараа байхгүй байна'
-                  : activeFilter === 'Бэлэн'
-                    ? 'Бэлэн бараа байхгүй байна'
-                    : 'Бараа олдсонгүй'}
-              </p>
+            <div className="text-center py-20">
+              <p className="text-gray-500">No products found.</p>
             </div>
           ) : (
             <>

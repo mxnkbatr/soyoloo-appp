@@ -12,12 +12,17 @@ export async function GET(request: NextRequest) {
     const q = searchParams.get('q')?.trim();
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
+    const stockStatus = searchParams.get('stockStatus');
 
     const products = await getCollection('products');
     const filter: Record<string, any> = {};
 
     if (category && category !== 'all') {
       filter.category = category;
+    }
+
+    if (stockStatus && stockStatus !== 'all') {
+      filter.stockStatus = stockStatus;
     }
 
     if (q) {
