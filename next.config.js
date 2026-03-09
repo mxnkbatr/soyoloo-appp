@@ -34,6 +34,11 @@ const nextConfig = {
         hostname: 'placehold.co',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'scontent.fuln4-3.fna.fbcdn.net',
+        pathname: '/**',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
   },
