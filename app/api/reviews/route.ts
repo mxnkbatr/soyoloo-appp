@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-import { auth } from '@/lib/auth';
+import { auth, currentUser } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
@@ -42,8 +42,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session || !session.userId) {
+    const user = await currentUser();
+    if (!user || !user.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     // Double check purchase on server side before saving review
     const ordersCollection = await getCollection('orders');
     const order = await ordersCollection.findOne({
-      userId: session.userId,
+      userId: user.id,
       status: { $in: ['delivered', 'shipped', 'confirmed', 'pending'] },
       $or: [
         { 'items.id': productId },
@@ -73,8 +73,8 @@ export async function POST(request: NextRequest) {
     const reviewsCollection = await getCollection('reviews');
     const newReview = {
       productId: new ObjectId(productId),
-      userId: session.userId,
-      userName: userName || 'Anonymous',
+      userId: user.id,
+      userName: userName || user.name || 'Anonymous',
       rating: Number(rating),
       comment,
       likes: 0,

@@ -4,7 +4,9 @@ import { auth } from '@/lib/auth';
 
 export async function GET(req: Request) {
     try {
-        const { userId } = await auth();
+        const { userId: authUserId } = await auth();
+        const guestId = req.headers.get('x-guest-id');
+        const userId = authUserId || guestId;
 
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -36,7 +38,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
     try {
-        const { userId } = await auth();
+        const { userId: authUserId } = await auth();
+        const guestId = req.headers.get('x-guest-id');
+        const userId = authUserId || guestId;
 
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

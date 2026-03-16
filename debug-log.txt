@@ -1459,3 +1459,237 @@
     ]
   }
 ]
+
+--- Request 2026-03-16T18:58:41.025Z ---
+[
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "macbook baigaa bol uu"
+      }
+    ]
+  }
+]
+
+--- Request 2026-03-16T19:01:27.049Z ---
+[
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "sn bnu"
+      }
+    ]
+  }
+]
+
+--- Request 2026-03-16T19:01:59.606Z ---
+[
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "sn bnu"
+      }
+    ]
+  }
+]
+
+--- Request 2026-03-16T19:02:27.378Z ---
+[
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "sn bnu"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "hi"
+      }
+    ]
+  }
+]
+
+--- Request 2026-03-16T19:04:39.548Z ---
+[
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "hi"
+      }
+    ]
+  }
+]
+
+--- Request 2026-03-16T19:06:26.313Z ---
+[
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "macbook baigaa yu"
+      }
+    ]
+  }
+]
+
+--- Request 2026-03-16T19:06:40.982Z ---
+[
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "macbook baigaa yu"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "Надад MacBook-ийн мэдээлэл байхгүй байна. Та манай дэлгүүрээс өөр ямар төрлийн бараа хайж байна вэ? Жишээлбэл, камер, дрон, гэрэл гэх мэт. 😊"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "camera  vaugg=aa yu"
+      }
+    ]
+  }
+]
+
+--- Request 2026-03-16T19:06:53.202Z ---
+[
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "macbook baigaa yu"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "Надад MacBook-ийн мэдээлэл байхгүй байна. Та манай дэлгүүрээс өөр ямар төрлийн бараа хайж байна вэ? Жишээлбэл, камер, дрон, гэрэл гэх мэт. 😊"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "camera  vaugg=aa yu"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "Та ямар төрлийн камер хайж байгаагаа тодорхой дурдана уу. Жишээлбэл, та дижитал камер, экшн камер, эсвэл мэргэжлийн камер хайж байна уу?"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "computer baigaa yu"
+      }
+    ]
+  }
+]
+
+--- Request 2026-03-16T19:07:18.695Z ---
+[
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "macbook baigaa yu"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "Надад MacBook-ийн мэдээлэл байхгүй байна. Та манай дэлгүүрээс өөр ямар төрлийн бараа хайж байна вэ? Жишээлбэл, камер, дрон, гэрэл гэх мэт. 😊"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "camera  vaugg=aa yu"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "Та ямар төрлийн камер хайж байгаагаа тодорхой дурдана уу. Жишээлбэл, та дижитал камер, экшн камер, эсвэл мэргэжлийн камер хайж байна уу?"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "computer baigaa yu"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "Манай дэлгүүр электроник болон видео тоног төхөөрөмжийн чиглэлээр үйл ажиллагаа явуулдаг тул компьютерын төрлийн бараа бүтээгдэхүүн байхгүй байна. Видео эсвэл гэрэл зурагтай холбоотой өөр ямар нэгэн зүйл хайж байна уу? 😊"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "canon eos r5 zagvariin camera baigaa yu"
+      }
+    ]
+  }
+]
