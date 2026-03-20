@@ -47,7 +47,7 @@ export default function Error({
           </p>
 
           {/* Error details (development only) */}
-          {process.env.NODE_ENV === 'development' && (
+          {true && (
             <div className="mb-8 p-4 bg-gray-50 rounded-xl text-left border border-gray-200">
               <p className="text-sm font-bold text-gray-700 mb-2">Error Details:</p>
               <p className="text-xs font-mono text-red-600 break-all">
