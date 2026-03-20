@@ -3,9 +3,8 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import { clerkMiddleware } from '@clerk/nextjs/server';
 
-// Note: Rate limiter is initialized outside for persistence where possible
-// In Edge/Serverless environments, this might re-init but connects to same Redis
 // Rate limiter setup with safety checks
 const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
   ? new Redis({
@@ -17,7 +16,7 @@ const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_RE
 const ratelimit = redis
   ? new Ratelimit({
     redis: redis,
-    limiter: Ratelimit.slidingWindow(100, '60 s'), // Increased limit for dev
+    limiter: Ratelimit.slidingWindow(100, '60 s'),
     analytics: true,
   })
   : null;
@@ -27,7 +26,7 @@ if (!process.env.JWT_SECRET) {
 }
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
-// Add paths that require authentication
+// Paths that require authentication
 const protectedRoutes = [
   '/dashboard',
   '/admin',
@@ -39,12 +38,12 @@ const protectedRoutes = [
   '/settings',
 ];
 
-// Add paths that are for admins only
+// Paths that are for admins only
 const adminRoutes = [
   '/admin'
 ];
 
-export async function middleware(req: NextRequest) {
+export default clerkMiddleware(async (auth, req: NextRequest) => {
   const { pathname } = req.nextUrl;
   const forwarded = req.headers.get('x-forwarded-for');
   const ip = forwarded ? forwarded.split(',')[0] : '127.0.0.1';
@@ -70,15 +69,13 @@ export async function middleware(req: NextRequest) {
         }
       } catch (err) {
         console.error('Rate limiting error:', err);
-        // Continue without rate limiting on error to avoid breaking the app
       }
     }
   }
 
-  // 2. Auth checks
+  // 2. Auth checks (Custom JWT Auth)
   const token = req.cookies.get('auth_token')?.value;
 
-  // Check if route requires auth
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
   const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
 
@@ -92,23 +89,19 @@ export async function middleware(req: NextRequest) {
     try {
       const { payload } = await jwtVerify(token, JWT_SECRET);
 
-      // Check Admin Role
       if (isAdminRoute && payload.role !== 'admin') {
-        return NextResponse.redirect(new URL('/', req.url)); // Or unauthorized page
+        return NextResponse.redirect(new URL('/', req.url));
       }
 
-      // Token is valid, allow
       return NextResponse.next();
-
     } catch (err) {
-      // Invalid token
       const url = new URL('/sign-in', req.url);
       return NextResponse.redirect(url);
     }
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: [

@@ -6,6 +6,7 @@ import { Phone, ArrowRight, Loader2, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import SocialAuthButtons from '@/components/SocialAuthButtons';
 
 function SignInContent() {
   const searchParams = useSearchParams();
@@ -236,6 +237,8 @@ function SignInContent() {
             )}
           </div>
         )}
+
+        <SocialAuthButtons mode="signIn" />
 
         <p className="text-center text-xs text-slate-400 mt-6">
           Бүртгэлгүй юу? <Link href="/sign-up" className="text-[#F57E20] font-bold hover:underline">Бүртгүүлэх</Link>

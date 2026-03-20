@@ -1,0 +1,89 @@
+import { NextResponse } from 'next/server';
+import { getCollection } from '@/lib/mongodb';
+import { SignJWT } from 'jose';
+
+if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET env variable is not set');
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+
+export async function POST(request: Request) {
+    try {
+        const { access_token } = await request.json();
+
+        if (!access_token) {
+            return NextResponse.json({ error: 'Missing access token' }, { status: 400 });
+        }
+
+        // Fetch user info from Google
+        const googleRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${access_token}` },
+        });
+
+        if (!googleRes.ok) {
+            return NextResponse.json({ error: 'Invalid Google token' }, { status: 401 });
+        }
+
+        const googleUser = await googleRes.json();
+        const { sub: googleId, email, name, picture } = googleUser;
+
+        const users = await getCollection('users');
+        let user = await users.findOne({ $or: [{ googleId }, { email }] });
+
+        if (!user) {
+            // Create user
+            const result = await users.insertOne({
+                googleId,
+                email,
+                name: name || email.split('@')[0],
+                image: picture,
+                role: 'user',
+                phone: null,
+                createdAt: new Date(),
+                status: 'available'
+            });
+            user = await users.findOne({ _id: result.insertedId });
+            if (!user) throw new Error('Failed to create user');
+        } else if (!user.googleId) {
+            // Link googleId to existing user
+            await users.updateOne({ _id: user._id }, { $set: { googleId } });
+            user.googleId = googleId;
+        }
+
+        // Create JWT
+        const token = await new SignJWT({
+            sub: user._id.toString(),
+            phone: user.phone || '',
+            role: user.role,
+            email: user.email,
+        })
+            .setProtectedHeader({ alg: 'HS256' })
+            .setExpirationTime('24h')
+            .sign(JWT_SECRET);
+
+        // Set cookie
+        const response = NextResponse.json({
+            success: true,
+            user: {
+                id: user._id.toString(),
+                phone: user.phone,
+                email: user.email,
+                role: user.role,
+                status: user.status,
+                name: user.name,
+                image: user.image
+            }
+        });
+        
+        response.cookies.set('auth_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24, // 1 day
+            path: '/',
+        });
+
+        return response;
+    } catch (error) {
+        console.error('Google Auth error:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}

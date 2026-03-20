@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import useSWR from 'swr';
 import toast from 'react-hot-toast';
-import { Loader2, Search, Shield, User, KeyRound, X, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Search, Shield, User, KeyRound, X, Eye, EyeOff, ArrowUpDown } from 'lucide-react';
+
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
@@ -18,6 +19,7 @@ interface AdminUser {
 export default function AdminUsersPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [togglingId, setTogglingId] = useState<string | null>(null);
+    const [sortBy, setSortBy] = useState<'date_desc' | 'date_asc' | 'name_asc' | 'name_desc'>('date_desc');
 
     // Password reset modal state
     const [passwordModal, setPasswordModal] = useState<{ user: AdminUser } | null>(null);
@@ -29,13 +31,27 @@ export default function AdminUsersPage() {
     const loading = !data && !error;
     const allUsers: AdminUser[] = data?.users || [];
 
-    const filteredUsers = allUsers.filter(u => {
-        const term = searchTerm.toLowerCase();
-        return (
-            (u.name || '').toLowerCase().includes(term) ||
-            (u.phone || '').toLowerCase().includes(term)
-        );
-    });
+    const filteredUsers = allUsers
+        .filter(u => {
+            const term = searchTerm.toLowerCase();
+            return (
+                (u.name || '').toLowerCase().includes(term) ||
+                (u.phone || '').toLowerCase().includes(term)
+            );
+        })
+        .sort((a, b) => {
+            switch (sortBy) {
+                case 'name_asc':
+                    return (a.name || '').localeCompare(b.name || '', 'mn');
+                case 'name_desc':
+                    return (b.name || '').localeCompare(a.name || '', 'mn');
+                case 'date_asc':
+                    return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+                case 'date_desc':
+                default:
+                    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+            }
+        });
 
     const handleToggleRole = async (user: AdminUser) => {
         const newRole = user.role === 'admin' ? 'user' : 'admin';
@@ -115,16 +131,33 @@ export default function AdminUsersPage() {
                         <p className="text-xs text-slate-400 mt-1">Хэрэглэгчдийн эрх удирдах</p>
                     </div>
 
-                    {/* Search */}
-                    <div className="relative w-full max-w-xs">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                        <input
-                            type="text"
-                            placeholder="Нэр эсвэл утсаар хайх..."
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all"
-                        />
+                    <div className="flex items-center gap-3 ml-auto">
+                        {/* Sort dropdown */}
+                        <div className="relative">
+                            <select
+                                value={sortBy}
+                                onChange={e => setSortBy(e.target.value as typeof sortBy)}
+                                className="pl-8 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500/50 appearance-none cursor-pointer"
+                            >
+                                <option value="date_desc">Шинэ эхэнд</option>
+                                <option value="date_asc">Хуучин эхэнд</option>
+                                <option value="name_asc">Нэр А→Я</option>
+                                <option value="name_desc">Нэр Я→А</option>
+                            </select>
+                            <ArrowUpDown className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
+                        </div>
+
+                        {/* Search */}
+                        <div className="relative w-full max-w-xs">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                            <input
+                                type="text"
+                                placeholder="Нэр эсвэл утсаар хайх..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all"
+                            />
+                        </div>
                     </div>
                 </div>
             </header>

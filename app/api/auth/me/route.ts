@@ -43,6 +43,7 @@ export async function GET(req: Request) {
         status: user.status,
         name: user.name,
         image: user.image,
+        imageUrl: user.image || null,
         email: user.email
       }
     });

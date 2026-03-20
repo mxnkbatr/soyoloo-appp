@@ -6,6 +6,7 @@ import { Phone, ArrowRight, Loader2, Lock, User, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import SocialAuthButtons from '@/components/SocialAuthButtons';
 
 export default function SignUpPage() {
     const [formData, setFormData] = useState({
@@ -143,6 +144,8 @@ export default function SignUpPage() {
                         )}
                     </button>
                 </form>
+
+                <SocialAuthButtons mode="signUp" />
 
                 <p className="text-center text-xs text-slate-400 mt-6">
                     Аль хэдийн бүртгэлтэй юу? <Link href="/sign-in" className="text-[#F57E20] font-bold hover:underline">Нэвтрэх</Link>
