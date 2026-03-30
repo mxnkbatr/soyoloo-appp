@@ -67,7 +67,9 @@ export default function AdminCategoriesPage() {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/categories');
+      const res = await fetch(`/api/categories?t=${Date.now()}`, {
+        cache: 'no-store'
+      });
       if (res.ok) {
         const data = await res.json();
         setCategories(data.categories || []);
@@ -85,6 +87,9 @@ export default function AdminCategoriesPage() {
   const handleDelete = async (slug: string) => {
     if (!confirm('Энэ категорийг устгахдаа итгэлтэй байна уу?')) return;
 
+    // Optimistically remove the category from the UI
+    setCategories(prev => prev.filter(cat => cat.id !== slug && cat._id !== slug));
+
     try {
       const res = await fetch(`/api/categories/${slug}`, {
         method: 'DELETE',
@@ -95,10 +100,12 @@ export default function AdminCategoriesPage() {
         fetchCategories();
       } else {
         toast.error('Устгахад алдаа гарлаа');
+        fetchCategories(); // Re-fetch to revert the UI if deletion failed
       }
     } catch (error) {
       console.error('Delete error:', error);
       toast.error('Сервертэй холбогдоход алдаа гарлаа');
+      fetchCategories(); // Re-fetch to revert the UI if deletion failed
     }
   };
 
