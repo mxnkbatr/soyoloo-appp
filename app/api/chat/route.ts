@@ -85,7 +85,7 @@ export async function POST(req: Request) {
     
     Context:
     - Today's date is ${new Date().toLocaleDateString('mn-MN')}.
-    ${userContext ? '- User Context: ' + userContext : ''}
+    ${userContext ? '- ' + userContext : ''}
     `,
       stopWhen: stepCountIs(8),
       messages: modelMessages,

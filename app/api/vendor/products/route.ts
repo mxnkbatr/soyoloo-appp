@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
 import { auth } from '@/lib/auth';
 import { ObjectId } from 'mongodb';
+import { sendPushToAllUsers } from '@/lib/fcm';
 
 export async function GET(req: NextRequest) {
     try {
@@ -38,6 +39,18 @@ export async function POST(req: NextRequest) {
         };
 
         const result = await productsCollection.insertOne(newProduct);
+
+        // Send Push Notification in background
+        sendPushToAllUsers({
+            title: '🆕 Шинэ бараа нэмэгдлээ!',
+            body: `${newProduct.name}${newProduct.price ? ` — ${newProduct.price}₮` : ''}`,
+            imageUrl: newProduct.image,
+            data: {
+                url: `/products/${result.insertedId.toString()}`,
+                productId: result.insertedId.toString(),
+                type: 'new_product'
+            }
+        }).catch(err => console.error('FCM: Background send error:', err));
 
         return NextResponse.json({ success: true, productId: result.insertedId.toString() }, { status: 201 });
     } catch (error) {

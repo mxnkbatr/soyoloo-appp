@@ -14,6 +14,12 @@ export interface Address {
     isDefault: boolean;
 }
 
+export interface PushToken {
+    token: string;
+    platform: string;
+    createdAt: Date;
+}
+
 export interface User {
     _id?: ObjectId;
     phone: string;
@@ -23,6 +29,7 @@ export interface User {
     email?: string;
     image?: string;
     addresses?: Address[];
+    pushTokens?: PushToken[];
     lastSeen?: Date;
     createdAt: Date;
     updatedAt: Date;
