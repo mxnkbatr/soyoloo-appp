@@ -276,7 +276,10 @@ async function seed() {
         await collection.deleteMany({});
         console.log('Cleared existing products');
 
-        const result = await collection.insertMany(products);
+        const urlToUse = "https://randomimageurl.com/assets/images/local/20260103_0518_Bold%20Abstract%20Composition_simple_compose_01ke204yvyf6pbx3ksw2cjcgkw_compressed_q80.jpeg";
+        const finalProducts = products.map(p => ({ ...p, image: urlToUse }));
+
+        const result = await collection.insertMany(finalProducts);
         console.log(`Inserted ${result.insertedCount} products`);
 
     } catch (error) {
