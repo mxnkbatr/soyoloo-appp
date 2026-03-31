@@ -29,13 +29,13 @@ jobs:
         run: |
           mkdir -p out
           touch out/index.html
-          npx cap sync android
+          npx cap sync android --verbose
 
       - name: Build APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --stacktrace --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
