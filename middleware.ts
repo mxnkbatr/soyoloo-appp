@@ -31,7 +31,6 @@ const protectedRoutes = [
   '/admin',
   '/profile',
   '/orders',
-  '/checkout',
   '/wishlist',
   '/addresses',
   '/settings',

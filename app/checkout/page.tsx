@@ -77,7 +77,7 @@ export default function CheckoutPage() {
   const selectedItems = items.filter(item => item.selected);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
-  const [addressTab, setAddressTab] = useState<'saved' | 'new'>('saved');
+  const [addressTab, setAddressTab] = useState<'saved' | 'new'>(isSignedIn ? 'saved' : 'new');
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('qpay');
@@ -847,6 +847,7 @@ export default function CheckoutPage() {
                       />
                     </div>
 
+                    {isSignedIn && (
                     <div className="pt-2">
                       <label className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 cursor-pointer hover:bg-orange-50/50 transition-colors border border-transparent hover:border-orange-100">
                         <div className="flex items-center gap-3">
@@ -863,6 +864,7 @@ export default function CheckoutPage() {
                         />
                       </label>
                     </div>
+                    )}
 
                     <button 
                         type="button"
