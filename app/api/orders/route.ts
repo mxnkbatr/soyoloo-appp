@@ -73,6 +73,8 @@ export async function POST(req: NextRequest) {
 
     if (body.items && body.items.length > 0) {
       const { ObjectId } = await import('mongodb');
+      const insufficientItems: { name: string; available: number; requested: number }[] = [];
+
       for (const item of body.items) {
         const productId = item.productId || item.id;
         if (!productId) continue;
@@ -80,8 +82,45 @@ export async function POST(req: NextRequest) {
           const product = await productsCollection.findOne({ _id: new ObjectId(productId) });
           if (product) {
             serverTotal += product.price * (item.quantity || 1);
+
+            // Check inventory (skip for pre-order items)
+            if (product.stockStatus !== 'pre-order') {
+              const availableInventory = product.inventory ?? 0;
+              const requestedQty = item.quantity || 1;
+
+              // If product has variants, check variant inventory
+              if (item.variantId && product.variants?.length) {
+                const variant = product.variants.find((v: any) => v.id === item.variantId);
+                const variantInventory = variant?.inventory ?? 0;
+                if (requestedQty > variantInventory) {
+                  const optionLabel = variant ? Object.values(variant.options).join(' / ') : '';
+                  insufficientItems.push({
+                    name: `${product.name}${optionLabel ? ` (${optionLabel})` : ''}`,
+                    available: variantInventory,
+                    requested: requestedQty,
+                  });
+                }
+              } else if (requestedQty > availableInventory) {
+                insufficientItems.push({
+                  name: product.name,
+                  available: availableInventory,
+                  requested: requestedQty,
+                });
+              }
+            }
           }
         } catch { continue; }
+      }
+
+      // If any items have insufficient inventory, reject the order
+      if (insufficientItems.length > 0) {
+        const messages = insufficientItems.map(i =>
+          `"${i.name}" - ${i.available === 0 ? 'Дууссан байна' : `Зөвхөн ${i.available}ш үлдсэн (${i.requested}ш хүссэн)`}`
+        );
+        return NextResponse.json(
+          { error: `Үлдэгдэл хүрэлцэхгүй байна:\n${messages.join('\n')}` },
+          { status: 400 }
+        );
       }
     }
 

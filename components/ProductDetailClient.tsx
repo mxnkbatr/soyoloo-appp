@@ -51,6 +51,7 @@ export type ProductDetailData = {
   options?: any[];
   variants?: any[];
   subcategory?: string;
+  deliveryFee?: number;
 };
 
 export default function ProductDetailClient({
@@ -139,8 +140,8 @@ export default function ProductDetailClient({
   const discount =
     product.originalPrice && product.originalPrice > displayPrice
       ? Math.round(
-          ((product.originalPrice - displayPrice) / product.originalPrice) * 100
-        )
+        ((product.originalPrice - displayPrice) / product.originalPrice) * 100
+      )
       : 0;
 
   const categoryObj = categories.find((c: any) => c.id === product.category);
@@ -172,7 +173,7 @@ export default function ProductDetailClient({
     if (navigator.share) {
       try {
         await navigator.share({ title: product.name, url: window.location.href });
-      } catch {}
+      } catch { }
     } else {
       navigator.clipboard.writeText(window.location.href);
       toast.success('Холбоос хуулагдлаа', {
@@ -490,9 +491,9 @@ export default function ProductDetailClient({
 
                 <div className="flex flex-col gap-3">
                   {[
-                    { icon: Truck, label: product.stockStatus === 'in-stock' ? '1 хоногт хүргэнэ' : '7–14 хоногт хүргэнэ', sub: 'Монгол даяар' },
-                    { icon: ShieldCheck, label: '100% Оригинал', sub: 'Баталгаат чанар' },
-                    { icon: RotateCcw, label: '7 хоногт буцаах', sub: 'Буцаалт хэвийн' },
+                    { icon: Truck, label: product.stockStatus === 'in-stock' ? 'Хурдан хүргэлт' : '7–14 хоногт хүргэнэ', sub: 'Монгол даяар' },
+                    { icon: ShieldCheck, label: '24/7 Тусламж', sub: 'Хэзээ ч холбогдох боломжтой' },
+                    { icon: RotateCcw, label: 'Найдвартай төлбөр', sub: '100% хамгаалагдсан' },
                   ].map(({ icon: Icon, label, sub }) => (
                     <div key={label} className="flex items-center gap-3">
                       <div className="w-7 h-7 rounded-lg bg-black/[0.04] flex items-center justify-center shrink-0">

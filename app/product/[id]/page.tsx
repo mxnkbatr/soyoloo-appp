@@ -93,6 +93,7 @@ export default async function ProductDetailPage({
       sizeGuideUrl: product.sizeGuideUrl || undefined,
       wholesale: product.wholesale || false,
       featured: product.featured || false,
+      deliveryFee: product.deliveryFee ?? 0,
       createdAt: product.createdAt ? new Date(product.createdAt).toISOString() : new Date().toISOString(),
       updatedAt: product.updatedAt ? new Date(product.updatedAt).toISOString() : new Date().toISOString(),
       rating: product.rating || 0,

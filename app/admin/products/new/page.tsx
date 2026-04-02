@@ -40,6 +40,7 @@ export default function NewProductPage() {
             brand: data.brand || '',
             model: data.model || '',
             delivery: data.delivery || 'Үнэгүй',
+            deliveryFee: parseFloat(data.deliveryFee) || 0,
             paymentMethods: data.paymentMethods || 'QPay, SocialPay, Card',
             attributes: data.attributes || {}
         };

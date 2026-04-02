@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Plus, Trash2, Tag, Layers } from 'lucide-react';
 
 export interface ProductOption {
@@ -50,14 +50,15 @@ export default function VariantsManager({ options, variants, onChange }: Variant
     return combinations;
   }, []);
 
-  // Update variants when options change
-  useEffect(() => {
-    onChange?.(localOptions, localVariants);
-  }, [localOptions, localVariants]);
+  // Helper to notify parent of changes — called directly in handlers, NOT in useEffect
+  const notifyParent = useCallback((newOptions: ProductOption[], newVariants: ProductVariant[]) => {
+    onChange?.(newOptions, newVariants);
+  }, [onChange]);
 
   const handleAddOption = () => {
     const newOptions = [...localOptions, { id: Date.now().toString(), name: '', values: [] }];
     setLocalOptions(newOptions);
+    notifyParent(newOptions, localVariants);
   };
 
   const handleUpdateOptionName = (id: string, name: string) => {
@@ -68,14 +69,18 @@ export default function VariantsManager({ options, variants, onChange }: Variant
     // When an option name changes, we need to update the keys in all variants' options objects
     const oldOption = oldOptions.find(o => o.id === id);
     if (oldOption && oldOption.name && name && oldOption.name !== name) {
-      setLocalVariants(vars => vars.map(v => {
+      const newVariants = localVariants.map(v => {
         const newVariantOptions = { ...v.options };
         if (oldOption.name in newVariantOptions) {
           newVariantOptions[name] = newVariantOptions[oldOption.name];
           delete newVariantOptions[oldOption.name];
         }
         return { ...v, options: newVariantOptions };
-      }));
+      });
+      setLocalVariants(newVariants);
+      notifyParent(newOptions, newVariants);
+    } else {
+      notifyParent(newOptions, localVariants);
     }
   };
 
@@ -124,12 +129,12 @@ export default function VariantsManager({ options, variants, onChange }: Variant
     const combos = combineOptions(newOptions);
     if (combos.length === 0) {
       setLocalVariants([]);
+      notifyParent(newOptions, []);
       return;
     }
 
     const newVariants: ProductVariant[] = combos.map(combo => {
       // Find existing variant to preserve price and inventory
-      // We match by comparing all option values
       const existing = currentVariants.find(v => {
         const vKeys = Object.keys(v.options);
         const comboKeys = Object.keys(combo);
@@ -144,16 +149,19 @@ export default function VariantsManager({ options, variants, onChange }: Variant
       };
     });
     setLocalVariants(newVariants);
+    notifyParent(newOptions, newVariants);
   };
 
   const handleVariantChange = (id: string, field: 'inventory' | 'price', value: string) => {
-    setLocalVariants(vars => vars.map(v => {
+    const newVariants = localVariants.map(v => {
       if (v.id === id) {
         const numVal = parseInt(value) || 0;
         return { ...v, [field]: value === '' ? undefined : numVal };
       }
       return v;
-    }));
+    });
+    setLocalVariants(newVariants);
+    notifyParent(localOptions, newVariants);
   };
 
   return (

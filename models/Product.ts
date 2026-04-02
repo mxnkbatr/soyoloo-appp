@@ -37,6 +37,7 @@ export interface Product {
   dispatchTime?: string;
   sizeGuideUrl?: string;
   sections?: string[]; // ['Шинэ', 'Бэлэн', etc.]
+  deliveryFee?: number;
   attributes?: Record<string, string>;
   options?: ProductOption[];
   variants?: ProductVariant[];

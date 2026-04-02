@@ -26,6 +26,7 @@ export type ProductFormData = {
   brand?: string;
   model?: string;
   delivery?: string;
+  deliveryFee?: number;
   paymentMethods?: string;
   attributes?: Record<string, string>;
   options?: { id: string; name: string; values: string[] }[];
@@ -57,6 +58,7 @@ export async function createProduct(data: ProductFormData) {
     if (productData.originalPrice !== undefined) productData.originalPrice = Number(productData.originalPrice) || 0;
     if (productData.discountPercent !== undefined) productData.discountPercent = Number(productData.discountPercent) || 0;
     if (productData.salesCount !== undefined) productData.salesCount = Number(productData.salesCount) || 0;
+    if (productData.deliveryFee !== undefined) productData.deliveryFee = Number(productData.deliveryFee) || 0;
 
     const result = await products.insertOne({
       ...productData,
@@ -129,6 +131,7 @@ export async function updateProduct(productId: string, data: Partial<ProductForm
     if (updateData.originalPrice !== undefined) updateData.originalPrice = Number(updateData.originalPrice) || 0;
     if (updateData.discountPercent !== undefined) updateData.discountPercent = Number(updateData.discountPercent) || 0;
     if (updateData.salesCount !== undefined) updateData.salesCount = Number(updateData.salesCount) || 0;
+    if (updateData.deliveryFee !== undefined) updateData.deliveryFee = Number(updateData.deliveryFee) || 0;
 
     // Remove _id if it accidentally exists in data
     delete updateData._id;

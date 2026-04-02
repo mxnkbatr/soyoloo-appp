@@ -73,7 +73,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isSignedIn } = useUser();
-  const { items, getSelectedTotalPrice, clearCart } = useCartStore();
+  const { items, getSelectedTotalPrice, removeItem } = useCartStore();
   const selectedItems = items.filter(item => item.selected);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
@@ -168,7 +168,12 @@ export default function CheckoutPage() {
     }));
   };
 
-  const DELIVERY_FEE = deliveryMethod === 'delivery' ? 5000 : 0;
+  // Calculate delivery fee from highest per-product deliveryFee
+  const maxDeliveryFee = selectedItems.reduce((max, item) => {
+    const fee = (item as any).deliveryFee ?? 0;
+    return Math.max(max, fee);
+  }, 0);
+  const DELIVERY_FEE = deliveryMethod === 'delivery' ? maxDeliveryFee : 0;
   const grandTotal = getSelectedTotalPrice() + DELIVERY_FEE;
 
   const hasPreOrder = selectedItems.some(item => (item as any).stockStatus === 'pre-order');
@@ -263,7 +268,8 @@ export default function CheckoutPage() {
         style: { background: '#FF7900', color: 'white', fontWeight: 'bold', borderRadius: '12px', padding: '16px' },
       });
 
-      clearCart();
+      // Only remove successfully ordered (selected) items from cart
+      selectedItems.forEach(item => removeItem(item.cartItemId));
 
       if (paymentMethod === 'qpay') {
         setCreatedOrder({ id: data.orderId, total: grandTotal });
@@ -342,7 +348,7 @@ export default function CheckoutPage() {
                 >
                   <Package className={`w-8 h-8 ${deliveryMethod === 'delivery' ? 'text-orange-600' : 'text-gray-400'}`} />
                   <span className="font-bold">Хүргэлтээр авах</span>
-                  <span className="text-xs font-medium px-2 py-1 bg-white rounded-full border border-gray-200">5,000₮</span>
+                  <span className="text-xs font-medium px-2 py-1 bg-white rounded-full border border-gray-200">{maxDeliveryFee > 0 ? `${maxDeliveryFee.toLocaleString()}₮` : 'Үнэгүй'}</span>
                 </button>
                 <button
                   type="button"

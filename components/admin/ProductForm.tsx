@@ -52,6 +52,7 @@ export default function ProductForm({ initialData, onSubmit, isSubmitting }: Pro
         brand: initialData?.brand || '',
         model: initialData?.model || '',
         delivery: initialData?.delivery || 'Үнэгүй',
+        deliveryFee: initialData?.deliveryFee?.toString() || '0',
         paymentMethods: initialData?.paymentMethods || 'QPay, SocialPay, Card',
         featured: initialData?.featured || false,
         attributes: initialData?.attributes || {},
@@ -267,6 +268,16 @@ export default function ProductForm({ initialData, onSubmit, isSubmitting }: Pro
                                             value={formData.sizeGuideUrl}
                                             onChange={(e) => handleChange('sizeGuideUrl', e.target.value)}
                                             placeholder="https://example.com/size-guide"
+                                            className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-500/50 text-sm transition-colors placeholder:text-slate-600"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-2 pt-2">
+                                        <label className="block text-xs font-medium text-slate-400 mb-2">Хүргэлтийн үнэ (₮)</label>
+                                        <input
+                                            type="number"
+                                            value={formData.deliveryFee}
+                                            onChange={(e) => handleChange('deliveryFee', e.target.value)}
+                                            placeholder="5000"
                                             className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-500/50 text-sm transition-colors placeholder:text-slate-600"
                                         />
                                     </div>
