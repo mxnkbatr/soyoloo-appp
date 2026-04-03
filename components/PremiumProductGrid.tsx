@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import { memo } from 'react';
-import { motion, Variants } from 'framer-motion';
-import UniversalProductCard from './UniversalProductCard';
+import { memo } from "react";
+import { motion, Variants } from "framer-motion";
+import UniversalProductCard from "./UniversalProductCard";
 
-import { type Product } from '@/models/Product';
+import { type Product } from "@/models/Product";
 
 interface PremiumProductGridProps {
   products: Product[];
   featuredProducts?: Product[];
   disableFeaturedSeparation?: boolean;
+  statusBadgeMode?: "default" | "ready" | "preorder" | "new" | "sale";
 }
 
 const containerVariants: Variants = {
@@ -23,7 +24,12 @@ const containerVariants: Variants = {
   },
 };
 
-function PremiumProductGrid({ products, featuredProducts, disableFeaturedSeparation = false }: PremiumProductGridProps) {
+function PremiumProductGrid({
+  products,
+  featuredProducts,
+  disableFeaturedSeparation = false,
+  statusBadgeMode = "default",
+}: PremiumProductGridProps) {
   // Separate featured and regular products
   let featured: Product[] = [];
   let regular: Product[] = [];
@@ -31,8 +37,8 @@ function PremiumProductGrid({ products, featuredProducts, disableFeaturedSeparat
   if (disableFeaturedSeparation) {
     regular = products;
   } else {
-    featured = featuredProducts || products.filter(p => p.featured);
-    regular = products.filter(p => !p.featured);
+    featured = featuredProducts || products.filter((p) => p.featured);
+    regular = products.filter((p) => !p.featured);
   }
 
   return (
@@ -49,7 +55,32 @@ function PremiumProductGrid({ products, featuredProducts, disableFeaturedSeparat
           {featured.map((product, index) => (
             <UniversalProductCard
               key={product.id}
-              product={product}
+              product={
+                statusBadgeMode === "default"
+                  ? product
+                  : ({
+                      ...product,
+                      stockStatus:
+                        statusBadgeMode === "ready"
+                          ? "in-stock"
+                          : statusBadgeMode === "preorder"
+                            ? "pre-order"
+                            : product.stockStatus,
+                      sections:
+                        statusBadgeMode === "new"
+                          ? Array.from(
+                              new Set([...(product.sections || []), "Шинэ"]),
+                            )
+                          : statusBadgeMode === "sale"
+                            ? Array.from(
+                                new Set([
+                                  ...(product.sections || []),
+                                  "Хямдрал",
+                                ]),
+                              )
+                            : product.sections,
+                    } as Product)
+              }
               index={index}
             />
           ))}
@@ -78,7 +109,32 @@ function PremiumProductGrid({ products, featuredProducts, disableFeaturedSeparat
           {regular.map((product, index) => (
             <UniversalProductCard
               key={product.id}
-              product={product}
+              product={
+                statusBadgeMode === "default"
+                  ? product
+                  : ({
+                      ...product,
+                      stockStatus:
+                        statusBadgeMode === "ready"
+                          ? "in-stock"
+                          : statusBadgeMode === "preorder"
+                            ? "pre-order"
+                            : product.stockStatus,
+                      sections:
+                        statusBadgeMode === "new"
+                          ? Array.from(
+                              new Set([...(product.sections || []), "Шинэ"]),
+                            )
+                          : statusBadgeMode === "sale"
+                            ? Array.from(
+                                new Set([
+                                  ...(product.sections || []),
+                                  "Хямдрал",
+                                ]),
+                              )
+                            : product.sections,
+                    } as Product)
+              }
               index={index + featured.length}
             />
           ))}

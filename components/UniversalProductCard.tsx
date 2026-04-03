@@ -1,34 +1,40 @@
-'use client';
+"use client";
 
-import { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Heart, ShoppingCart, Clock } from 'lucide-react';
-import { useCartStore } from '@/store/cartStore';
-import { useWishlistStore } from '@/store/wishlistStore';
-import { useAuth } from '@/context/AuthContext';
-import { formatPrice } from '@/lib/utils';
-import toast from 'react-hot-toast';
-import type { Product } from '@/models/Product';
-import ProductBadge from '@/components/ProductBadge';
+import { useState, useRef } from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
+import { Heart, ShoppingCart, Clock } from "lucide-react";
+import { useCartStore } from "@/store/cartStore";
+import { useWishlistStore } from "@/store/wishlistStore";
+import { useAuth } from "@/context/AuthContext";
+import { formatPrice } from "@/lib/utils";
+import toast from "react-hot-toast";
+import type { Product } from "@/models/Product";
+import ProductBadge from "@/components/ProductBadge";
 
 interface UniversalProductCardProps {
   product: Product;
   index?: number;
   disableInitialAnimation?: boolean;
+  statusBadgeMode?: "default" | "ready" | "preorder" | "new" | "sale";
 }
 
 export default function UniversalProductCard({
   product: originalProduct,
   index = 0,
   disableInitialAnimation = false,
+  statusBadgeMode = "default",
 }: UniversalProductCardProps) {
   const product = originalProduct;
 
   const { isAuthenticated } = useAuth();
   const addItem = useCartStore((state) => state.addItem);
-  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
+  const {
+    addItem: addToWishlist,
+    removeItem: removeFromWishlist,
+    isInWishlist,
+  } = useWishlistStore();
   const isWishlisted = isInWishlist(product.id);
 
   const [activeIdx, setActiveIdx] = useState(0);
@@ -42,22 +48,30 @@ export default function UniversalProductCard({
         if (!combined.includes(img)) combined.push(img);
       });
     }
-    return combined.length > 0 ? combined : ['/soyol-logo.png'];
+    return combined.length > 0 ? combined : ["/soyol-logo.png"];
   })();
 
   const hasMultiple = allImages.length > 1;
 
   const discount =
     product.originalPrice && product.originalPrice > product.price
-      ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+      ? Math.round(
+          ((product.originalPrice - product.price) / product.originalPrice) *
+            100,
+        )
       : (product.discountPercent ?? 0);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product);
-    toast.success('Сагсанд нэмлээ', {
-      style: { borderRadius: '10px', background: '#FF5000', color: '#fff', fontWeight: '600' },
+    toast.success("Сагсанд нэмлээ", {
+      style: {
+        borderRadius: "10px",
+        background: "#FF5000",
+        color: "#fff",
+        fontWeight: "600",
+      },
       duration: 1500,
     });
   };
@@ -66,15 +80,15 @@ export default function UniversalProductCard({
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) {
-      toast.error('Нэвтрэх шаардлагатай', { style: { borderRadius: '10px' } });
+      toast.error("Нэвтрэх шаардлагатай", { style: { borderRadius: "10px" } });
       return;
     }
     if (isWishlisted) {
       removeFromWishlist(product.id);
-      toast.success('Хүслээс хассан', { style: { borderRadius: '10px' } });
+      toast.success("Хүслээс хассан", { style: { borderRadius: "10px" } });
     } else {
       addToWishlist({ ...product } as any);
-      toast.success('Хүсэлд нэмсэн', { style: { borderRadius: '10px' } });
+      toast.success("Хүсэлд нэмсэн", { style: { borderRadius: "10px" } });
     }
   };
 
@@ -82,16 +96,22 @@ export default function UniversalProductCard({
     <motion.div
       initial={disableInitialAnimation ? undefined : { opacity: 0, y: 16 }}
       whileInView={disableInitialAnimation ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-40px' }}
-      transition={disableInitialAnimation ? undefined : { duration: 0.4, delay: index * 0.04, ease: [0.25, 0.1, 0.25, 1] }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={
+        disableInitialAnimation
+          ? undefined
+          : { duration: 0.4, delay: index * 0.04, ease: [0.25, 0.1, 0.25, 1] }
+      }
       whileTap={{ scale: 0.97 }}
       className="group relative"
-      style={{ touchAction: 'manipulation' }}
+      style={{ touchAction: "manipulation" }}
     >
       <Link
         href={`/product/${product.id}`}
         className="block"
-        onClick={(e) => { if (isDragging.current) e.preventDefault(); }}
+        onClick={(e) => {
+          if (isDragging.current) e.preventDefault();
+        }}
       >
         <div className="bg-white rounded-[20px] sm:rounded-[2rem] overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1">
           {/* ── Image area ─────────────────────────────── */}
@@ -102,16 +122,22 @@ export default function UniversalProductCard({
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={0.08}
-                onDragStart={() => { isDragging.current = true; }}
+                onDragStart={() => {
+                  isDragging.current = true;
+                }}
                 onDragEnd={(_, info) => {
                   if (Math.abs(info.offset.x) > 50) {
-                    if (info.offset.x < 0 && activeIdx < allImages.length - 1) setActiveIdx((p) => p + 1);
-                    else if (info.offset.x > 0 && activeIdx > 0) setActiveIdx((p) => p - 1);
+                    if (info.offset.x < 0 && activeIdx < allImages.length - 1)
+                      setActiveIdx((p) => p + 1);
+                    else if (info.offset.x > 0 && activeIdx > 0)
+                      setActiveIdx((p) => p - 1);
                   }
-                  setTimeout(() => { isDragging.current = false; }, 10);
+                  setTimeout(() => {
+                    isDragging.current = false;
+                  }, 10);
                 }}
                 animate={{ x: `-${activeIdx * 100}%` }}
-                transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+                transition={{ type: "spring", stiffness: 320, damping: 32 }}
                 className="flex w-full h-full"
               >
                 {allImages.map((img, i) => (
@@ -138,29 +164,60 @@ export default function UniversalProductCard({
               />
             )}
 
-
             {/* ── Top-left badges ───────────────────────── */}
             <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start">
-              {/* Discount */}
-
-              {/* Stock status */}
-              {product.stockStatus === 'in-stock' && (
+              {/* Page-context status badge */}
+              {(statusBadgeMode === "ready" ||
+                (statusBadgeMode === "default" &&
+                  product.stockStatus === "in-stock")) && (
                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/95 backdrop-blur-md rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse" />
-                  <span className="text-[10px] sm:text-[11px] font-bold text-[#34C759] uppercase tracking-wider leading-none mt-[1px]">Бэлэн</span>
-                </div>
-              )}
-              {product.stockStatus === 'pre-order' && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/95 backdrop-blur-md rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-                  <Clock className="w-3 h-3 text-[#FF9500]" strokeWidth={2.5} />
-                  <span className="text-[10px] sm:text-[11px] font-bold text-[#FF9500] uppercase tracking-wider leading-none mt-[1px]">Захиалга</span>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[#34C759] uppercase tracking-wider leading-none mt-[1px]">
+                    Бэлэн бараа
+                  </span>
                 </div>
               )}
 
-              {/* Featured */}
-              <ProductBadge
-                isFeatured={product.featured || product.sections?.includes('Онцгой') || product.sections?.includes('Онцлох')}
-              />
+              {(statusBadgeMode === "preorder" ||
+                (statusBadgeMode === "default" &&
+                  product.stockStatus === "pre-order")) && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/95 backdrop-blur-md rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                  <Clock className="w-3 h-3 text-[#FF9500]" strokeWidth={2.5} />
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[#FF9500] uppercase tracking-wider leading-none mt-[1px]">
+                    Захиалгын бараа
+                  </span>
+                </div>
+              )}
+
+              {statusBadgeMode === "new" && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/95 backdrop-blur-md rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                  <span className="text-[11px] leading-none">✨</span>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[#007AFF] uppercase tracking-wider leading-none mt-[1px]">
+                    Шинэ бараа
+                  </span>
+                </div>
+              )}
+
+              {statusBadgeMode === "sale" && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/95 backdrop-blur-md rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                  <span className="text-[11px] leading-none">🏷️</span>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[#FF3B30] uppercase tracking-wider leading-none mt-[1px]">
+                    Хямдрал
+                  </span>
+                </div>
+              )}
+
+              {/* Featured / New badge from product metadata (only in default mode to avoid conflict) */}
+              {statusBadgeMode === "default" && (
+                <ProductBadge
+                  isFeatured={
+                    product.featured ||
+                    product.sections?.includes("Онцгой") ||
+                    product.sections?.includes("Онцлох")
+                  }
+                  sections={product.sections}
+                />
+              )}
             </div>
 
             {/* ── Wishlist button ───────────────────────── */}
@@ -168,19 +225,20 @@ export default function UniversalProductCard({
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleWishlist}
-              className={`absolute top-3 right-3 z-10 flex items-center justify-center transition-all w-6 h-6 sm:w-9 sm:h-9 sm:rounded-full sm:border ${isWishlisted
-                ? 'text-[#FF5722] sm:bg-red-50 sm:border-red-100 sm:text-red-500'
-                : 'text-[#AAAAAA] sm:bg-white/90 sm:backdrop-blur-sm sm:border-black/[0.04] sm:text-black/30 hover:text-[#FF5722] sm:hover:text-red-500 sm:shadow-sm'
-                }`}
+              className={`absolute top-3 right-3 z-10 flex items-center justify-center transition-all w-6 h-6 sm:w-9 sm:h-9 sm:rounded-full sm:border ${
+                isWishlisted
+                  ? "text-[#FF5722] sm:bg-red-50 sm:border-red-100 sm:text-red-500"
+                  : "text-[#AAAAAA] sm:bg-white/90 sm:backdrop-blur-sm sm:border-black/[0.04] sm:text-black/30 hover:text-[#FF5722] sm:hover:text-red-500 sm:shadow-sm"
+              }`}
             >
               {/* Mobile Heart */}
               <Heart
-                className={`sm:hidden w-5 h-5 ${isWishlisted ? 'fill-[#FF5722] stroke-[#FF5722]' : 'fill-transparent stroke-[#AAAAAA]'}`}
+                className={`sm:hidden w-5 h-5 ${isWishlisted ? "fill-[#FF5722] stroke-[#FF5722]" : "fill-transparent stroke-[#AAAAAA]"}`}
                 strokeWidth={1}
               />
               {/* Desktop Heart */}
               <Heart
-                className={`hidden sm:block w-4 h-4 ${isWishlisted ? 'fill-red-500' : ''}`}
+                className={`hidden sm:block w-4 h-4 ${isWishlisted ? "fill-red-500" : ""}`}
                 strokeWidth={2.5}
               />
             </motion.button>
@@ -196,27 +254,30 @@ export default function UniversalProductCard({
             {/* Footer Container (Pushed to bottom) */}
             <div className="mt-auto flex flex-col gap-2.5 sm:gap-4">
               {/* Inventory Level (Visible only for low stock <= 10) */}
-              {product.inventory !== undefined && product.inventory <= 10 && product.inventory > 0 && (
-                <div className="flex flex-col gap-1.5 pt-1">
-                  <span className="text-[10px] sm:text-[11px] font-medium text-gray-400 leading-none">
-                    Сүүлийн {product.inventory} ширхэг
-                  </span>
-                  <div className="w-full h-1 bg-[#E5E5EA] rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-[#FF3B30] rounded-full"
-                      style={{ width: `${(product.inventory / 10) * 100}%` }}
-                    />
+              {product.inventory !== undefined &&
+                product.inventory <= 10 &&
+                product.inventory > 0 && (
+                  <div className="flex flex-col gap-1.5 pt-1">
+                    <span className="text-[10px] sm:text-[11px] font-medium text-gray-400 leading-none">
+                      Сүүлийн {product.inventory} ширхэг
+                    </span>
+                    <div className="w-full h-1 bg-[#E5E5EA] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#FF3B30] rounded-full"
+                        style={{ width: `${(product.inventory / 10) * 100}%` }}
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Desktop: Price section separate */}
               <div className="hidden sm:flex flex-col gap-0.5">
-                {product.originalPrice && product.originalPrice > product.price && (
-                  <span className="text-[11px] sm:text-xs text-gray-400 line-through font-medium leading-none">
-                    {formatPrice(product.originalPrice)}
-                  </span>
-                )}
+                {product.originalPrice &&
+                  product.originalPrice > product.price && (
+                    <span className="text-[11px] sm:text-xs text-gray-400 line-through font-medium leading-none">
+                      {formatPrice(product.originalPrice)}
+                    </span>
+                  )}
                 <div className="flex items-baseline gap-1">
                   <span className="text-[18px] sm:text-2xl font-bold text-[#FF5000] leading-none tracking-tight">
                     {formatPrice(product.price)}
@@ -242,11 +303,12 @@ export default function UniversalProductCard({
               {/* Mobile: Footer row (Price & Cart Button merged) */}
               <div className="flex sm:hidden items-center justify-between gap-2 mt-1">
                 <div className="flex flex-col">
-                  {product.originalPrice && product.originalPrice > product.price && (
-                    <span className="text-[11px] text-gray-400 line-through font-medium leading-none mb-1">
-                      {formatPrice(product.originalPrice)}
-                    </span>
-                  )}
+                  {product.originalPrice &&
+                    product.originalPrice > product.price && (
+                      <span className="text-[11px] text-gray-400 line-through font-medium leading-none mb-1">
+                        {formatPrice(product.originalPrice)}
+                      </span>
+                    )}
                   <span className="text-[17px] font-bold text-[#FF5000] leading-none tracking-tight">
                     {formatPrice(product.price)}
                   </span>
@@ -258,7 +320,10 @@ export default function UniversalProductCard({
                     onClick={handleAddToCart}
                     className="w-[34px] h-[34px] flex items-center justify-center bg-[#FF5000] text-white rounded-[12px] shadow-[0_4px_12px_rgba(255,80,0,0.3)] active:bg-[#E64800] transition-all shrink-0"
                   >
-                    <ShoppingCart className="w-[18px] h-[18px]" strokeWidth={2.5} />
+                    <ShoppingCart
+                      className="w-[18px] h-[18px]"
+                      strokeWidth={2.5}
+                    />
                   </motion.button>
                 </div>
               </div>

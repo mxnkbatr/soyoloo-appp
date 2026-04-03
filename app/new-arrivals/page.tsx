@@ -342,6 +342,7 @@ export default function NewArrivalsPage() {
             <PremiumProductGrid
               products={sortedProducts as any}
               disableFeaturedSeparation
+              statusBadgeMode="new"
             />
           </motion.div>
         ) : (

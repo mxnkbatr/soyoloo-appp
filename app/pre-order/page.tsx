@@ -335,6 +335,7 @@ export default function PreOrderPage() {
             <PremiumProductGrid
               products={sortedProducts as any}
               disableFeaturedSeparation
+              statusBadgeMode="preorder"
             />
           </motion.div>
         ) : (
