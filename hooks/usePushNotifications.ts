@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { useUser } from '@/context/AuthContext';
+import toast from 'react-hot-toast';
 
 export const usePushNotifications = () => {
     const { isSignedIn } = useUser();
@@ -54,6 +55,30 @@ export const usePushNotifications = () => {
                 console.error('FCM: Registration error:', err);
             });
 
+            // Foreground notification — show a toast
+            const receivedListener = await PushNotifications.addListener('pushNotificationReceived', (notification) => {
+                console.log('FCM: Foreground notification:', notification);
+                const title = notification.title || 'Мэдэгдэл';
+                const body = notification.body || '';
+                toast(
+                    `${title}\n${body}`,
+                    {
+                        icon: '🔔',
+                        duration: 4000,
+                        style: {
+                            borderRadius: '16px',
+                            background: '#1C1C1E',
+                            color: '#fff',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            padding: '12px 16px',
+                            maxWidth: '340px',
+                        },
+                    }
+                );
+            });
+
+            // Tap on notification — deep link
             const actionListener = await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
                 console.log('FCM: Action performed:', action);
                 const url = action.notification.data?.url;
@@ -65,6 +90,7 @@ export const usePushNotifications = () => {
             return () => {
                 registrationListener.remove();
                 errorListener.remove();
+                receivedListener.remove();
                 actionListener.remove();
             };
         };

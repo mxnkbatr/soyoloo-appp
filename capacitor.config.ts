@@ -5,9 +5,25 @@ const config: CapacitorConfig = {
   appName: 'Soyol Shop',
   webDir: 'out',
   server: {
-    url: 'https://soyol-shop.vercel.app',
-    androidScheme: 'https'
-  }
+    url: 'https://soyol-delta.vercel.app',
+    androidScheme: 'https',
+    errorPath: '/offline.html',
+  },
+  plugins: {
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"],
+    },
+    SplashScreen: {
+      launchShowDuration: 2000,
+      launchAutoHide: true,
+      backgroundColor: "#ffffffff",
+      androidSplashResourceName: "splash",
+      androidScaleType: "CENTER_CROP",
+      showSpinner: false,
+      splashFullScreen: true,
+      splashImmersive: true,
+    },
+  },
 };
 
 export default config;

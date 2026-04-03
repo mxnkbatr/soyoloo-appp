@@ -40,7 +40,7 @@ export default function DealsPage() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch('/api/products?limit=50');
+        const response = await fetch('/api/products?featured=true&limit=50');
         const data = await response.json();
         setProducts(data.products || []);
       } catch (error) {

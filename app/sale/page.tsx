@@ -40,14 +40,9 @@ export default function SalePage() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch('/api/products?limit=50');
+        const response = await fetch('/api/products?isSale=true&limit=50');
         const data = await response.json();
-        // Simulate discounts for sale page
-        const productsWithDiscounts = (data.products || []).map((p: Product) => ({
-          ...p,
-          discount: Math.floor(Math.random() * 30) + 10 // 10-40% discount
-        }));
-        setProducts(productsWithDiscounts);
+        setProducts(data.products || []);
       } catch (error) {
         // Error handled silently
       } finally {

@@ -53,6 +53,7 @@ export default function LuxuryNavbar() {
   const [wishlistBump, setWishlistBump] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const [hasSaleItems, setHasSaleItems] = useState(true);
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
@@ -114,6 +115,19 @@ export default function LuxuryNavbar() {
     return () => { cancelled = true; };
   }, [debouncedSearchQuery]);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/products?isSale=true&limit=1')
+      .then(res => res.json())
+      .then(data => {
+        if (!cancelled && data.products) {
+          setHasSaleItems(data.products.length > 0);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = searchQuery.trim();
@@ -129,7 +143,7 @@ export default function LuxuryNavbar() {
     { name: t('nav', 'readyToShip'), href: '/ready-to-ship', icon: Truck },
     { name: t('nav', 'preOrder'), href: '/pre-order', icon: Globe },
     { name: t('nav', 'deals'), href: '/deals', icon: Tag },
-    { name: t('nav', 'sale'), href: '/sale', icon: Zap },
+    ...(hasSaleItems ? [{ name: t('nav', 'sale'), href: '/sale', icon: Zap }] : []),
   ];
 
   const mobileNavItems = [

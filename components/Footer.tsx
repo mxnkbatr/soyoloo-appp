@@ -12,8 +12,11 @@ import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 
 export default function Footer() {
+  // Hide footer in native Capacitor app
+  if (Capacitor.isNativePlatform()) return null;
   const { language, setLanguage, currency } = useLanguage();
   const { t } = useTranslation();
   const [email, setEmail] = useState('');

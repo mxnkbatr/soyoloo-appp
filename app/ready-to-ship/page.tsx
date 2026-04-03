@@ -38,11 +38,10 @@ export default function ReadyToShipPage() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch('/api/products?limit=50');
+        const response = await fetch('/api/products?stockStatus=in-stock&limit=50');
         const data = await response.json();
         const allProducts: Product[] = data.products || [];
-        const readyProducts = allProducts.filter(p => p.stockStatus === 'in-stock');
-        setProducts(readyProducts);
+        setProducts(allProducts);
       } catch (error) {
         // Error handling - could log to error tracking service in production
       } finally {
@@ -54,7 +53,6 @@ export default function ReadyToShipPage() {
 
   // --- Filtering Logic ---
 
-  // Since we only have ready products, we just use the main products array
   let filteredProducts = [...products];
 
   // Apply price filter

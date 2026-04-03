@@ -24,22 +24,35 @@ export async function GET(request: NextRequest) {
     const conditions: object[] = [];
 
     if (stockStatus) {
-      if (stockStatus === 'in-stock') {
-        conditions.push({
-          $or: [
-            { stockStatus: 'in-stock' },
-            { stockStatus: { $exists: false } },
-            { stockStatus: null }
-          ]
-        });
-      } else {
-        filter.stockStatus = stockStatus;
-      }
+      filter.stockStatus = stockStatus;
     }
 
     const featured = searchParams.get('featured');
     if (featured === 'true') {
       filter.featured = true;
+    }
+
+    const isSale = searchParams.get('isSale');
+    if (isSale === 'true') {
+      conditions.push({
+        $or: [
+          { discountPercent: { $gt: 0 } },
+          { discount: { $gt: 0 } }
+        ]
+      });
+    }
+
+    const isNew = searchParams.get('isNew');
+    if (isNew === 'true') {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      conditions.push({
+        $or: [
+          { createdAt: { $gt: thirtyDaysAgo } },
+          { sections: 'Шинэ' },
+          { sections: 'New' }
+        ]
+      });
     }
 
     if (q) {

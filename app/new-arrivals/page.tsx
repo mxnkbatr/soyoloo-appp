@@ -39,12 +39,10 @@ export default function NewArrivalsPage() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch('/api/products?limit=50');
+        const response = await fetch('/api/products?isNew=true&limit=50');
         const data = await response.json();
         const allProducts = data.products || [];
-        // Filter only ready-to-ship products for New Arrivals
-        const readyProducts = allProducts.filter((p: Product) => p.stockStatus === 'in-stock');
-        setProducts(readyProducts);
+        setProducts(allProducts);
       } catch (error) {
         // Error handling - could log to error tracking service in production
       } finally {
@@ -56,7 +54,6 @@ export default function NewArrivalsPage() {
 
   // --- Filtering Logic ---
 
-  // Since we only have ready products, we just use the main products array
   let filteredProducts = [...products];
 
   // Apply price filter
