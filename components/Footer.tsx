@@ -11,15 +11,24 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
 
 export default function Footer() {
-  // Hide footer in native Capacitor app
-  if (Capacitor.isNativePlatform()) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { language, setLanguage, currency } = useLanguage();
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
+
+  // Hide footer in native Capacitor app
+  const isNative = typeof window !== 'undefined' && Capacitor.isNativePlatform();
+  
+  if (!mounted || isNative) return null;
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,25 +76,20 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
 
           {/* Column 1: Brand & App (Large) */}
-          <div className="lg:col-span-4 space-y-8">
-            <div className="space-y-4">
-              <Link href="/" className="inline-block">
-                <div className="relative w-40 h-12">
-                  <Image
-                    src="/soyol-footer-logo.png"
-                    alt="Soyol Video Shop"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              </Link>
-              <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
-                {t('footer', 'description')}
-              </p>
-            </div>
+          <div className="lg:col-span-4 space-y-6">
+            <Link href="/" className="inline-block shrink-0">
+              <div className="relative w-96 h-40">
+                <Image
+                  src="/soyol-footer-logo.png"
+                  alt="Soyol Video Shop"
+                  fill
+                  className="object-contain object-left"
+                />
+              </div>
+            </Link>
 
             {/* App Download Section - High Traffic Site Feature */}
-            <div className="p-4 bg-gray-900 rounded-2xl border border-gray-800">
+            <div className="p-4 bg-gray-900 rounded-2xl border border-gray-800 max-w-sm">
               <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
                 <Smartphone className="w-4 h-4 text-orange-500" />
                 {t('footer', 'downloadApp')}
@@ -119,11 +123,11 @@ export default function Footer() {
             <h3 className="text-sm font-bold text-white uppercase tracking-wider">{t('footer', 'about')}</h3>
             <ul className="space-y-3">
               {[
-                { label: t('footer', 'aboutUs'), href: '#' },
-                { label: t('footer', 'careers'), href: '#' },
-                { label: t('footer', 'news'), href: '#' },
-                { label: t('footer', 'privacyPolicy'), href: '#' },
-                { label: t('footer', 'termsOfService'), href: '#' }
+                { label: t('footer', 'aboutUs'), href: '/about' },
+                { label: t('footer', 'careers'), href: '/careers' },
+                { label: t('footer', 'news'), href: '/news' },
+                { label: t('footer', 'privacyPolicy'), href: '/privacy-policy' },
+                { label: t('footer', 'termsOfService'), href: '/terms-of-service' }
               ].map((item) => (
                 <li key={item.label}>
                   <Link href={item.href} className="text-sm text-gray-400 hover:text-orange-500 transition-colors">
@@ -198,6 +202,34 @@ export default function Footer() {
                   </a>
                 ))}
               </div>
+            </div>
+
+            <div className="space-y-4 pt-2">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">{t('footer', 'facebookGroups')}</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a 
+                    href="https://www.facebook.com/groups/1075978082545812" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-400 hover:text-orange-500 flex items-center gap-2 transition-colors"
+                  >
+                    <Facebook className="w-4 h-4" />
+                    {t('footer', 'group1')}
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://www.facebook.com/groups/soyolvideoshop" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-400 hover:text-orange-500 flex items-center gap-2 transition-colors"
+                  >
+                    <Facebook className="w-4 h-4" />
+                    {t('footer', 'group2')}
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
