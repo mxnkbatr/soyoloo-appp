@@ -27,7 +27,7 @@ export default function Footer() {
 
   // Hide footer in native Capacitor app
   const isNative = typeof window !== 'undefined' && Capacitor.isNativePlatform();
-  
+
   if (!mounted || isNative) return null;
 
   const handleSubscribe = (e: React.FormEvent) => {
@@ -125,7 +125,6 @@ export default function Footer() {
               {[
                 { label: t('footer', 'aboutUs'), href: '/about' },
                 { label: t('footer', 'careers'), href: '/careers' },
-                { label: t('footer', 'news'), href: '/news' },
                 { label: t('footer', 'privacyPolicy'), href: '/privacy-policy' },
                 { label: t('footer', 'termsOfService'), href: '/terms-of-service' }
               ].map((item) => (
@@ -208,9 +207,9 @@ export default function Footer() {
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">{t('footer', 'facebookGroups')}</h3>
               <ul className="space-y-2">
                 <li>
-                  <a 
-                    href="https://www.facebook.com/groups/1075978082545812" 
-                    target="_blank" 
+                  <a
+                    href="https://www.facebook.com/groups/1075978082545812"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-gray-400 hover:text-orange-500 flex items-center gap-2 transition-colors"
                   >
@@ -219,9 +218,9 @@ export default function Footer() {
                   </a>
                 </li>
                 <li>
-                  <a 
-                    href="https://www.facebook.com/groups/soyolvideoshop" 
-                    target="_blank" 
+                  <a
+                    href="https://www.facebook.com/groups/soyolvideoshop"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-gray-400 hover:text-orange-500 flex items-center gap-2 transition-colors"
                   >
