@@ -55,7 +55,7 @@ function PremiumProductGrid({
         >
           {featured.map((product, index) => (
             <UniversalProductCard
-              key={product.id}
+              key={`feat-${product.id || 'empty'}-${index}`}
               isAdmin={isAdmin}
               statusBadgeMode={statusBadgeMode}
               product={
@@ -111,7 +111,7 @@ function PremiumProductGrid({
         >
           {regular.map((product, index) => (
             <UniversalProductCard
-              key={product.id}
+              key={`reg-${product.id || 'empty'}-${index}`}
               isAdmin={isAdmin}
               statusBadgeMode={statusBadgeMode}
               product={

@@ -24,6 +24,8 @@ import { type Product } from "@/models/Product";
 import MobileHero from "@/components/MobileHero";
 import MobileProductGrid from "@/components/MobileProductGrid";
 import InfiniteScrollTrigger from "@/components/InfiniteScrollTrigger";
+import BottomSheet from "@/components/ui/BottomSheet";
+import { triggerHaptic } from "@/lib/haptics";
 
 type FilterType = "all" | "Бэлэн" | "Захиалга";
 type SortType = "newest" | "price-low" | "price-high" | "name-az";
@@ -156,12 +158,12 @@ export default function HomePage() {
   const suggestedMin =
     prices.length > 0
       ? Math.floor(Math.min(...prices) / (currency === "USD" ? 10 : 1000)) *
-        (currency === "USD" ? 10 : 1000)
+      (currency === "USD" ? 10 : 1000)
       : 0;
   const suggestedMax =
     prices.length > 0
       ? Math.ceil(Math.max(...prices) / (currency === "USD" ? 10 : 1000)) *
-        (currency === "USD" ? 10 : 1000)
+      (currency === "USD" ? 10 : 1000)
       : currency === "USD"
         ? 1000
         : 1000000;
@@ -209,12 +211,14 @@ export default function HomePage() {
               {(["all", "Бэлэн", "Захиалга"] as const).map((f) => (
                 <button
                   key={f}
-                  onClick={() => setActiveFilter(f as FilterType)}
-                  className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 ${
-                    activeFilter === f
+                  onClick={() => {
+                    triggerHaptic();
+                    setActiveFilter(f as FilterType);
+                  }}
+                  className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 ${activeFilter === f
                       ? "bg-[#FF5000] text-white shadow-sm"
                       : "bg-gray-100 text-gray-500"
-                  }`}
+                    }`}
                 >
                   {f === "all" ? "Бүгд" : f}
                 </button>
@@ -228,7 +232,7 @@ export default function HomePage() {
               </span>
               <div className="flex-1" />
               {/* Sort select — styled natively */}
-              <div className="flex items-center gap-1.5 bg-gray-100 rounded-full px-3 py-1.5">
+              <div className="flex items-center gap-1.5 bg-gray-100 rounded-full px-3 py-1.5 active:scale-95 transition-transform" onClick={() => triggerHaptic()}>
                 <ArrowUpDown
                   className="w-3.5 h-3.5 text-gray-500"
                   strokeWidth={2}
@@ -246,76 +250,72 @@ export default function HomePage() {
               </div>
               {/* Price filter button */}
               <button
-                onClick={() => setShowPriceFilter(!showPriceFilter)}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
-                  showPriceFilter || minPrice || maxPrice
+                onClick={() => {
+                  triggerHaptic();
+                  setShowPriceFilter(!showPriceFilter);
+                }}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${showPriceFilter || minPrice || maxPrice
                     ? "bg-[#FF5000] text-white"
                     : "bg-gray-100 text-gray-700"
-                }`}
+                  }`}
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" strokeWidth={2} />
                 Үнэ{minPrice || maxPrice ? " •" : ""}
               </button>
             </div>
 
-            {/* Price filter panel */}
-            <AnimatePresence>
-              {showPriceFilter && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden border-t border-gray-100 bg-white"
-                >
-                  <div className="px-4 py-3 space-y-3">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <p className="text-[10px] text-gray-400 font-semibold uppercase mb-1">
-                          Доод
-                        </p>
-                        <input
-                          type="number"
-                          value={minPrice}
-                          onChange={(e) => setMinPrice(e.target.value)}
-                          placeholder={suggestedMin.toLocaleString()}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 outline-none focus:border-orange-400"
-                        />
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-gray-400 font-semibold uppercase mb-1">
-                          Дээд
-                        </p>
-                        <input
-                          type="number"
-                          value={maxPrice}
-                          onChange={(e) => setMaxPrice(e.target.value)}
-                          placeholder={suggestedMax.toLocaleString()}
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 outline-none focus:border-orange-400"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          setMinPrice("");
-                          setMaxPrice("");
-                        }}
-                        className="flex-1 py-2 text-sm font-semibold bg-gray-100 text-gray-600 rounded-xl"
-                      >
-                        Арилгах
-                      </button>
-                      <button
-                        onClick={() => setShowPriceFilter(false)}
-                        className="flex-1 py-2 text-sm font-bold text-white bg-[#FF5000] rounded-xl"
-                      >
-                        Хэрэглэх
-                      </button>
-                    </div>
+            {/* Mobile Price Filter - Bottom Sheet */}
+            <BottomSheet
+              isOpen={showPriceFilter}
+              onClose={() => setShowPriceFilter(false)}
+              title="Үнээр шүүх"
+            >
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] text-gray-400 font-bold uppercase ml-1">Доод үнэ</label>
+                    <input
+                      type="number"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      placeholder={suggestedMin.toLocaleString()}
+                      className="w-full px-4 py-3 text-base border border-gray-100 rounded-2xl bg-gray-50 outline-none focus:border-orange-200"
+                    />
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] text-gray-400 font-bold uppercase ml-1">Дээд үнэ</label>
+                    <input
+                      type="number"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      placeholder={suggestedMax.toLocaleString()}
+                      className="w-full px-4 py-3 text-base border border-gray-100 rounded-2xl bg-gray-50 outline-none focus:border-orange-200"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => {
+                      triggerHaptic();
+                      setMinPrice("");
+                      setMaxPrice("");
+                    }}
+                    className="flex-1 py-3.5 text-sm font-bold bg-gray-100 text-gray-600 rounded-2xl active:scale-95 transition-transform"
+                  >
+                    Арилгах
+                  </button>
+                  <button
+                    onClick={() => {
+                      triggerHaptic();
+                      setShowPriceFilter(false);
+                    }}
+                    className="flex-1 py-3.5 text-sm font-bold text-white bg-[#FF5000] rounded-2xl shadow-lg shadow-orange-500/20 active:scale-95 transition-transform"
+                  >
+                    Хэрэглэх
+                  </button>
+                </div>
+              </div>
+            </BottomSheet>
           </div>
 
           {/* === DESKTOP: Old Filter Bar (unchanged) === */}
@@ -328,11 +328,10 @@ export default function HomePage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setActiveFilter("all")}
-                className={`px-4 py-2 lg:px-5 lg:py-2.5 rounded-2xl font-bold text-xs lg:text-sm transition-all duration-300 whitespace-nowrap ${
-                  activeFilter === "all"
+                className={`px-4 py-2 lg:px-5 lg:py-2.5 rounded-2xl font-bold text-xs lg:text-sm transition-all duration-300 whitespace-nowrap ${activeFilter === "all"
                     ? "bg-[#FF5000] text-white shadow-lg shadow-orange-500/30"
                     : "bg-white/50 text-gray-600 hover:bg-white border border-gray-100"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-1.5 lg:gap-2">
                   <Sparkles
@@ -358,11 +357,10 @@ export default function HomePage() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setActiveFilter(section as any)}
-                    className={`px-4 py-2 lg:px-5 lg:py-2.5 rounded-2xl font-bold text-xs lg:text-sm transition-all duration-300 whitespace-nowrap ${
-                      isActive
+                    className={`px-4 py-2 lg:px-5 lg:py-2.5 rounded-2xl font-bold text-xs lg:text-sm transition-all duration-300 whitespace-nowrap ${isActive
                         ? "bg-[#FF5000] text-white shadow-lg shadow-orange-500/30"
                         : "bg-white/50 text-gray-600 hover:bg-white border border-gray-100"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-1.5 lg:gap-2">
                       <Icon
@@ -402,11 +400,10 @@ export default function HomePage() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setShowPriceFilter(!showPriceFilter)}
-                  className={`flex items-center gap-2 px-3 py-2 lg:px-4 lg:py-2.5 text-xs lg:text-sm font-bold rounded-2xl transition-all duration-300 ${
-                    showPriceFilter || minPrice || maxPrice
+                  className={`flex items-center gap-2 px-3 py-2 lg:px-4 lg:py-2.5 text-xs lg:text-sm font-bold rounded-2xl transition-all duration-300 ${showPriceFilter || minPrice || maxPrice
                       ? "bg-[#FF5000] text-white shadow-lg shadow-orange-500/30"
                       : "bg-white text-gray-700 border border-gray-200 hover:border-[#FF5000]/30"
-                  }`}
+                    }`}
                 >
                   <SlidersHorizontal
                     className="w-3.5 h-3.5 lg:w-4 lg:h-4"
@@ -527,23 +524,31 @@ export default function HomePage() {
               <p className="text-red-500">Error loading products.</p>
             </div>
           ) : loading ? (
-            <div className="grid grid-cols-2 gap-3 px-3 lg:hidden">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="grid grid-cols-2 gap-3 px-3 lg:hidden"
+            >
               {Array(6)
                 .fill(0)
                 .map((_, i) => (
                   <div
                     key={i}
-                    className="bg-white rounded-2xl overflow-hidden border border-gray-100/50"
+                    className="bg-white rounded-[20px] overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.03)]"
                   >
-                    <div className="aspect-square bg-slate-100 animate-pulse" />
-                    <div className="p-3 space-y-2">
-                      <div className="h-3 bg-slate-100 rounded animate-pulse w-3/4" />
-                      <div className="h-3 bg-slate-100 rounded animate-pulse w-1/2" />
-                      <div className="h-5 bg-slate-100 rounded animate-pulse w-2/3" />
+                    <div className="aspect-square bg-[#F7F7F5] animate-pulse rounded-t-[20px]" />
+                    <div className="px-3.5 pt-3 pb-3.5 flex flex-col gap-2.5">
+                      <div className="h-3.5 bg-gray-100 rounded animate-pulse w-5/6" />
+                      <div className="h-3.5 bg-gray-100 rounded animate-pulse w-1/2" />
+                      <div className="flex justify-between items-end mt-2">
+                        <div className="h-5 bg-gray-100 rounded animate-pulse w-16" />
+                        <div className="w-[34px] h-[34px] bg-gray-100 rounded-[12px] animate-pulse shrink-0" />
+                      </div>
                     </div>
                   </div>
                 ))}
-            </div>
+            </motion.div>
           ) : sortedProducts.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-gray-500">No products found.</p>

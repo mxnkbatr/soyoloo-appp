@@ -24,7 +24,7 @@ export function useProducts(filters: Record<string, any> = {}) {
     });
 
     // Add limit
-    params.set('limit', '20');
+    params.set('limit', '18');
 
     // Add cursor if not the first page
     if (pageIndex > 0 && previousPageData?.nextCursor) {

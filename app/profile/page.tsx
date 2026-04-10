@@ -15,6 +15,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { formatPrice } from '@/lib/utils';
 import toast from 'react-hot-toast';
+import { Camera as CapCamera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
 
 type Tab = 'overview' | 'orders' | 'password';
 
@@ -29,7 +31,7 @@ interface Order {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading, logout, refreshUser } = useAuth();
   const wishlistCount = useWishlistStore(state => state.getTotalItems());
   const [activeTab, setActiveTab] = useState<Tab>('overview');
 
@@ -37,6 +39,7 @@ export default function ProfilePage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [addressCount, setAddressCount] = useState(0);
   const [dataLoading, setDataLoading] = useState(true);
+  const [photoUploading, setPhotoUploading] = useState(false);
 
   // Password form
   const [currentPassword, setCurrentPassword] = useState('');
@@ -71,6 +74,63 @@ export default function ProfilePage() {
       toast.success('Амжилттай гарлаа');
     } catch {
       toast.error('Гарахад алдаа гарлаа');
+    }
+  };
+
+  const handlePhotoUpload = async () => {
+    try {
+      let imageDataUrl: string;
+
+      if (Capacitor.isNativePlatform()) {
+        const photo = await CapCamera.getPhoto({
+          quality: 80,
+          allowEditing: false,
+          resultType: CameraResultType.DataUrl,
+          source: CameraSource.Prompt,
+        });
+        imageDataUrl = photo.dataUrl!;
+      } else {
+        // Web fallback: file input
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        await new Promise<void>((resolve) => {
+          input.onchange = () => resolve();
+          input.click();
+        });
+        if (!input.files?.[0]) return;
+        const reader = new FileReader();
+        imageDataUrl = await new Promise((resolve) => {
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.readAsDataURL(input.files![0]);
+        });
+      }
+
+      // Upload to Cloudinary
+      const formData = new FormData();
+      const blob = await fetch(imageDataUrl).then(r => r.blob());
+      formData.append('file', blob, 'profile.jpg');
+      formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
+
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: 'POST', body: formData }
+      );
+      const data = await res.json();
+
+      if (data.secure_url) {
+        await fetch('/api/user/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageUrl: data.secure_url }),
+        });
+        toast.success('Зураг амжилттай шинэчлэгдлээ');
+        router.refresh();
+      }
+    } catch (error: any) {
+      if (error?.message !== 'User cancelled photos app') {
+        toast.error('Зураг оруулахад алдаа гарлаа');
+      }
     }
   };
 
@@ -187,8 +247,14 @@ export default function ProfilePage() {
               <span className="text-[34px] font-extrabold text-[#FF5000]">{initials}</span>
             )}
           </div>
-          <button className="absolute bottom-0.5 right-0.5 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg border border-gray-100">
-            <Camera className="w-3.5 h-3.5 text-[#FF5000]" strokeWidth={2.5} />
+          <button
+            onClick={handlePhotoUpload}
+            disabled={photoUploading}
+            className="absolute bottom-0.5 right-0.5 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg border border-gray-100 active:scale-90 transition-transform disabled:opacity-60"
+          >
+            {photoUploading
+              ? <span className="w-3 h-3 border-2 border-[#FF5000]/40 border-t-[#FF5000] rounded-full animate-spin" />
+              : <Camera className="w-3.5 h-3.5 text-[#FF5000]" strokeWidth={2.5} />}
           </button>
         </div>
 

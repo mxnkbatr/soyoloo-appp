@@ -36,6 +36,7 @@ import LanguageCurrencySelector from "./LanguageCurrencySelector";
 import SearchDropdown from "./SearchDropdown";
 import NotificationBell from "./NotificationBell";
 import { Suspense } from "react";
+import { triggerHaptic } from "@/lib/haptics";
 
 function SearchParamsHandler({
   setSearchQuery,
@@ -161,7 +162,7 @@ export default function LuxuryNavbar() {
           setHasSaleItems(data.products.length > 0);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       cancelled = true;
     };
@@ -222,18 +223,16 @@ export default function LuxuryNavbar() {
         initial={{ y: 0 }}
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 100 }}
-        className={`hidden lg:block fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled
+        className={`hidden lg:block fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
             ? "bg-white/80 backdrop-blur-xl border-b border-black/[0.05] shadow-sm"
             : "bg-white/80 backdrop-blur-xl border-b border-black/[0.02]"
-        }`}
+          }`}
       >
         <div className="max-w-7xl mx-auto">
           <div className="px-4 sm:px-6 lg:px-8">
             <div
-              className={`relative z-50 flex items-center justify-between transition-all duration-200 ${
-                scrolled ? "h-16" : "h-24"
-              }`}
+              className={`relative z-50 flex items-center justify-between transition-all duration-200 ${scrolled ? "h-16" : "h-24"
+                }`}
             >
               {/* Logo */}
               <Link
@@ -264,11 +263,10 @@ export default function LuxuryNavbar() {
               <div className="flex-1 max-w-[600px] mx-8">
                 <form onSubmit={handleSearch} className="relative w-full">
                   <motion.div
-                    className={`relative w-full group rounded-full transition-all duration-300 ${
-                      searchFocused
+                    className={`relative w-full group rounded-full transition-all duration-300 ${searchFocused
                         ? "bg-white border-2 border-[#FF5000] shadow-md"
                         : "bg-[#f4f4f5] border-2 border-transparent hover:bg-gray-200/50"
-                    }`}
+                      }`}
                     animate={{
                       scale: searchFocused ? 1.02 : 1,
                       y: searchFocused ? -2 : 0,
@@ -290,11 +288,10 @@ export default function LuxuryNavbar() {
                         className="pl-4"
                       >
                         <Search
-                          className={`w-6 h-6 transition-colors duration-300 ${
-                            searchFocused
+                          className={`w-6 h-6 transition-colors duration-300 ${searchFocused
                               ? "text-[#FF5000]"
                               : "text-gray-400 group-hover:text-[#FF5000]"
-                          }`}
+                            }`}
                           strokeWidth={1.5}
                         />
                       </motion.div>
@@ -340,11 +337,10 @@ export default function LuxuryNavbar() {
                             );
                           }
                         }}
-                        className={`mr-1.5 p-2 rounded-full transition-all duration-300 ${
-                          searchFocused || searchQuery
+                        className={`mr-1.5 p-2 rounded-full transition-all duration-300 ${searchFocused || searchQuery
                             ? "bg-[#FF5000] text-white shadow-lg shadow-orange-500/30"
                             : "bg-gray-100 text-gray-400 group-hover:bg-[#FF5000] group-hover:text-white"
-                        }`}
+                          }`}
                       >
                         <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
                       </motion.button>
@@ -355,7 +351,7 @@ export default function LuxuryNavbar() {
                   results={searchResults}
                   isVisible={searchFocused && searchQuery.trim().length > 0}
                   onClose={() => setSearchFocused(false)}
-                  onMouseDown={() => {}}
+                  onMouseDown={() => { }}
                   isLoading={isLoadingSearch}
                 />
               </div>
@@ -499,11 +495,10 @@ export default function LuxuryNavbar() {
                     className="relative p-2 hover:bg-gray-50 rounded-2xl transition-all group cursor-pointer border border-transparent hover:border-gray-100"
                   >
                     <Heart
-                      className={`w-6 h-6 transition-colors ${
-                        mounted && wishlistItemsCount > 0
+                      className={`w-6 h-6 transition-colors ${mounted && wishlistItemsCount > 0
                           ? "text-[#FF5000] fill-orange-50/50"
                           : "text-gray-600 group-hover:text-[#FF5000]"
-                      }`}
+                        }`}
                       strokeWidth={1.5}
                     />
                     {mounted && wishlistItemsCount > 0 && (
@@ -523,11 +518,10 @@ export default function LuxuryNavbar() {
                     className="relative p-2 hover:bg-gray-50 rounded-2xl transition-all group cursor-pointer border border-transparent hover:border-gray-100"
                   >
                     <ShoppingBag
-                      className={`w-6 h-6 transition-colors ${
-                        mounted && cartItemsCount > 0
+                      className={`w-6 h-6 transition-colors ${mounted && cartItemsCount > 0
                           ? "text-[#FF5000]"
                           : "text-gray-600 group-hover:text-[#FF5000]"
-                      }`}
+                        }`}
                       strokeWidth={1.5}
                     />
                     {mounted && cartItemsCount > 0 && (
@@ -566,18 +560,16 @@ export default function LuxuryNavbar() {
                       }}
                     >
                       <div
-                        className={`flex items-center gap-2 transition-all duration-300 ${
-                          isActive
+                        className={`flex items-center gap-2 transition-all duration-300 ${isActive
                             ? "text-orange-600"
                             : "text-gray-600 hover:text-orange-500"
-                        }`}
+                          }`}
                       >
                         <Icon
-                          className={`w-4 h-4 transition-colors duration-300 ${
-                            isActive
+                          className={`w-4 h-4 transition-colors duration-300 ${isActive
                               ? "text-orange-600"
                               : "group-hover:text-orange-500"
-                          }`}
+                            }`}
                           strokeWidth={1.2}
                         />
                         <span className="text-sm font-medium tracking-wider">
@@ -621,25 +613,29 @@ export default function LuxuryNavbar() {
           <div className="flex items-center gap-2">
             <Link
               href="/search"
-              className="p-1.5 text-[#1C1C1E] active:scale-90 transition-transform"
+              onClick={() => triggerHaptic()}
+              className="p-1.5 text-[#1C1C1E]"
             >
               <Search className="w-6 h-6" strokeWidth={1.8} />
             </Link>
             <Link href="/wishlist">
-              <motion.div
-                whileTap={{ scale: 0.9 }}
+              <div
+                onClick={() => triggerHaptic()}
                 className="p-1.5 text-[#1C1C1E] relative"
               >
                 <Heart className="w-6 h-6" strokeWidth={1.8} />
                 {mounted && wishlistItemsCount > 0 && (
                   <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-[#FF3B30] rounded-full ring-2 ring-white shadow-sm" />
                 )}
-              </motion.div>
+              </div>
             </Link>
             <NotificationBell />
             <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="p-1.5 text-[#1C1C1E] active:scale-90 transition-transform cursor-pointer"
+              onClick={() => {
+                triggerHaptic();
+                setMobileMenuOpen(true);
+              }}
+              className="p-1.5 text-[#1C1C1E] cursor-pointer"
             >
               <Menu className="w-6 h-6" strokeWidth={1.8} />
             </button>
@@ -825,7 +821,8 @@ export default function LuxuryNavbar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="flex-1 flex flex-col items-center justify-center group active:scale-95 transition-transform"
+                  onClick={() => triggerHaptic()}
+                  className="flex-1 flex flex-col items-center justify-center group"
                 >
                   <div className="relative">
                     <Icon

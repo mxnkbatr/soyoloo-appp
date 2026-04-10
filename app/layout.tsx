@@ -2,7 +2,6 @@ import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import LuxuryNavbar from '@components/LuxuryNavbar';
-import Footer from '@components/Footer';
 import ClientLayout from './ClientLayout';
 import { SITE_CONFIG } from '@lib/constants';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -86,7 +85,6 @@ export default function RootLayout({
         <ClientLayout>
           <LuxuryNavbar />
           <main className="min-h-screen pb-16 md:pb-0 relative z-0">{children}</main>
-          <Footer />
         </ClientLayout>
       </body>
     </html>

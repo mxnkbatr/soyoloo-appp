@@ -47,5 +47,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Профайл зураг авахад ашиглана</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Видео дуудлагад ашиглана</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Профайл зураг сонгоход ашиглана</string>
 </dict>
 </plist>

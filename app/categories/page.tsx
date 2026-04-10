@@ -64,8 +64,8 @@ export default function CategoriesPage() {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.06,
-        delayChildren: 0.1
+        staggerChildren: 0.015,
+        delayChildren: 0.05
       }
     }
   };
@@ -253,8 +253,8 @@ export default function CategoriesPage() {
                   </span>
                 </button>
 
-                {categories.map((category) => (
-                  <div key={category.id} className="space-y-1">
+                {categories.map((category, idx) => (
+                  <div key={`cat-${category.id || 'empty'}-${idx}`} className="space-y-1">
                     <button
                       onClick={() => {
                         if (selectedCategory === category.id) {
@@ -295,9 +295,9 @@ export default function CategoriesPage() {
                           className="overflow-hidden pl-4"
                         >
                           <div className="pl-4 border-l-2 border-gray-100 space-y-1 py-1">
-                            {category.subcategories.map((sub) => (
+                            {category.subcategories.map((sub, sIdx) => (
                               <button
-                                key={sub.id}
+                                key={`sub-${sub.id || 'empty'}-${sIdx}`}
                                 onClick={() => setSelectedSubcategory(sub.id)}
                                 className={`w-full text-left py-2 px-3 rounded-lg text-xs font-bold transition-colors ${selectedSubcategory === sub.id
                                   ? 'text-soyol bg-orange-50'
@@ -398,9 +398,9 @@ export default function CategoriesPage() {
                     )}
                     <span className="relative z-10">Бүгд</span>
                   </motion.button>
-                  {categories.map((cat) => (
+                  {categories.map((cat, idx) => (
                     <motion.button
-                      key={cat.id}
+                      key={`mc-${cat.id || 'empty'}-${idx}`}
                       onClick={() => setSelectedCategory(cat.id)}
                       whileTap={{ scale: 0.95 }}
                       className={`relative flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === cat.id
@@ -460,7 +460,7 @@ export default function CategoriesPage() {
                   }
                 >
                   {sortedProducts.map((product, index) => (
-                    <motion.div key={product.id} variants={itemVariants}>
+                    <motion.div key={`prod-${product.id || 'empty'}-${index}`} variants={itemVariants}>
                       <UniversalProductCard
                         product={product}
                         index={index}

@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Allow local development server access from mobile IP
+  allowedDevOrigins: [
+    '192.168.1.152', 
+    '192.168.1.152:3000', 
+    '192.168.1.152:3001', 
+    '192.168.1.211',
+    '0.0.0.0'
+  ],
   async headers() {
     return [
       {

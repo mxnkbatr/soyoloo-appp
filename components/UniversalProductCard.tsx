@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,6 +13,7 @@ import { formatPrice } from "@/lib/utils";
 import toast from "react-hot-toast";
 import type { Product } from "@/models/Product";
 import ProductBadge from "@/components/ProductBadge";
+import { triggerHaptic, hapticSuccess } from "@/lib/haptics";
 
 interface UniversalProductCardProps {
   product: Product;
@@ -68,7 +69,9 @@ export default function UniversalProductCard({
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    triggerHaptic();
     addItem(product);
+    hapticSuccess();
     toast.success("Сагсанд нэмлээ", {
       style: {
         borderRadius: "10px",
@@ -88,27 +91,57 @@ export default function UniversalProductCard({
       return;
     }
     if (isWishlisted) {
+      triggerHaptic();
       removeFromWishlist(product.id);
       toast.success("Хүслээс хассан", { style: { borderRadius: "10px" } });
     } else {
+      triggerHaptic();
       addToWishlist({ ...product } as any);
+      hapticSuccess();
       toast.success("Хүсэлд нэмсэн", { style: { borderRadius: "10px" } });
     }
   };
 
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1, rootMargin: "50px" }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const handleScroll = useCallback(() => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, clientWidth } = scrollRef.current;
+    if (clientWidth === 0) return;
+    const newIndex = Math.round(scrollLeft / clientWidth);
+    if (newIndex !== activeIdx) {
+      setActiveIdx(newIndex);
+      triggerHaptic();
+    }
+  }, [activeIdx]);
+
   return (
-    <motion.div
-      initial={disableInitialAnimation ? undefined : { opacity: 0, y: 16 }}
-      whileInView={disableInitialAnimation ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={
-        disableInitialAnimation
-          ? undefined
-          : { duration: 0.4, delay: index * 0.04, ease: [0.25, 0.1, 0.25, 1] }
-      }
-      whileTap={{ scale: 0.97 }}
-      className="group relative"
-      style={{ touchAction: "manipulation" }}
+    <div
+      ref={cardRef}
+      className={`group relative reveal-card gpu ${isVisible ? "visible" : ""} active:scale-[0.98] transition-transform`}
+      style={{ 
+        touchAction: "manipulation"
+      }}
     >
       <div
         className="block cursor-pointer"
@@ -123,30 +156,14 @@ export default function UniversalProductCard({
           <div className="relative aspect-square bg-[#F7F7F5] overflow-hidden rounded-t-[20px] sm:rounded-t-[2rem]">
             {/* Swipeable image slider */}
             {hasMultiple ? (
-              <motion.div
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.08}
-                onDragStart={() => {
-                  isDragging.current = true;
-                }}
-                onDragEnd={(_, info) => {
-                  if (Math.abs(info.offset.x) > 50) {
-                    if (info.offset.x < 0 && activeIdx < allImages.length - 1)
-                      setActiveIdx((p) => p + 1);
-                    else if (info.offset.x > 0 && activeIdx > 0)
-                      setActiveIdx((p) => p - 1);
-                  }
-                  setTimeout(() => {
-                    isDragging.current = false;
-                  }, 10);
-                }}
-                animate={{ x: `-${activeIdx * 100}%` }}
-                transition={{ type: "spring", stiffness: 320, damping: 32 }}
-                className="flex w-full h-full"
+              <div
+                ref={scrollRef}
+                onScroll={handleScroll}
+                className="flex w-full h-full overflow-x-auto snap-x snap-mandatory hide-sb"
+                style={{ WebkitOverflowScrolling: "touch" }}
               >
                 {allImages.map((img, i) => (
-                  <div key={i} className="w-full h-full shrink-0 relative">
+                  <div key={i} className="w-full h-full shrink-0 snap-center relative">
                     <Image
                       src={img}
                       alt={product.name}
@@ -157,7 +174,7 @@ export default function UniversalProductCard({
                     />
                   </div>
                 ))}
-              </motion.div>
+              </div>
             ) : (
               <Image
                 src={allImages[0]}
@@ -167,6 +184,30 @@ export default function UniversalProductCard({
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 priority={index < 4}
               />
+            )}
+
+            {/* ── Image Indicators (Dots + Badge) ───────────────── */}
+            {hasMultiple && (
+              <>
+                {/* Dots */}
+                <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
+                  {allImages.map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={false}
+                      animate={{ 
+                        width: activeIdx === i ? 12 : 4,
+                        backgroundColor: activeIdx === i ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.15)",
+                      }}
+                      className="h-1 rounded-full"
+                    />
+                  ))}
+                </div>
+                {/* Badge */}
+                <div className="absolute top-3 right-3 bg-white/70 backdrop-blur-md text-black/80 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-black/[0.05] shadow-sm z-20 tabular-nums">
+                  {activeIdx + 1} / {allImages.length}
+                </div>
+              </>
             )}
 
             {/* ── Top-left badges ───────────────────────── */}
@@ -230,14 +271,14 @@ export default function UniversalProductCard({
               )}
             </div>
 
-            {/* ── Wishlist button ───────────────────────── */}
+            {/* ── Wishlist button (Now conditionally moved or hidden on multi-image to avoid overlap with badge) ── */}
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleWishlist}
-              className={`absolute top-3 right-3 z-10 flex items-center justify-center transition-all w-6 h-6 sm:w-9 sm:h-9 sm:rounded-full sm:border ${isWishlisted
-                  ? "text-[#FF5722] sm:bg-red-50 sm:border-red-100 sm:text-red-500"
-                  : "text-[#AAAAAA] sm:bg-white/90 sm:backdrop-blur-sm sm:border-black/[0.04] sm:text-black/30 hover:text-[#FF5722] sm:hover:text-red-500 sm:shadow-sm"
+              className={`absolute bottom-3 right-3 z-30 flex items-center justify-center transition-all w-6 h-6 sm:w-9 sm:h-9 sm:rounded-full sm:border ${isWishlisted
+                ? "text-[#FF5722] sm:bg-red-50 sm:border-red-100 sm:text-red-500"
+                : "text-[#AAAAAA] sm:bg-white/90 sm:backdrop-blur-sm sm:border-black/[0.04] sm:text-black/30 hover:text-[#FF5722] sm:hover:text-red-500 sm:shadow-sm"
                 }`}
             >
               {/* Mobile Heart */}
@@ -257,7 +298,7 @@ export default function UniversalProductCard({
           <div className="px-3.5 pt-3 pb-3.5 sm:px-5 sm:pt-5 sm:pb-5 flex flex-col gap-2.5 sm:gap-4">
             {/* Product name */}
             <h3 className="text-[14px] sm:text-[16px] font-semibold text-[#1C1C1E] leading-snug line-clamp-2 min-h-[42px] sm:min-h-[48px] tracking-tight group-hover:text-[#FF5000] transition-colors">
-            {product.name} {product.isCargo && " + Карго"}
+              {product.name} {product.isCargo && " + Карго"}
             </h3>
 
             {/* Footer Container (Pushed to bottom) */}
@@ -346,11 +387,11 @@ export default function UniversalProductCard({
                   </motion.button>
                 </div>
               </div>
-              </div>
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
+    </div>
   );
 }
 

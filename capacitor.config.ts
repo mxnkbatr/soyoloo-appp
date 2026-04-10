@@ -3,7 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'mn.soyol.shop',
   appName: 'Soyol Shop',
-  webDir: 'out',
+  webDir: 'public',
   server: {
     url: 'https://soyol-delta.vercel.app',
     androidScheme: 'https',

@@ -34,6 +34,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import RelatedProducts from "./RelatedProducts";
 import ProductReviews from "./ProductReviews";
 import { openExternalLink } from "@/lib/openExternalLink";
+import { triggerHaptic } from "@/lib/haptics";
 
 export type ProductDetailData = {
   id: string;
@@ -281,6 +282,30 @@ export default function ProductDetailClient({
     router.push("/checkout");
   };
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = useCallback(() => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, clientWidth } = scrollRef.current;
+    if (clientWidth === 0) return;
+    const newIndex = Math.round(scrollLeft / clientWidth);
+    if (newIndex !== activeImageIndex) {
+      setActiveImageIndex(newIndex);
+      triggerHaptic();
+    }
+  }, [activeImageIndex]);
+
+  // Handle thumbnail clicks or programatic changes
+  useEffect(() => {
+    if (scrollRef.current) {
+      const { clientWidth, scrollLeft } = scrollRef.current;
+      const targetScroll = activeImageIndex * clientWidth;
+      if (Math.abs(scrollLeft - targetScroll) > 10) {
+        scrollRef.current.scrollTo({ left: targetScroll, behavior: "auto" });
+      }
+    }
+  }, [activeImageIndex]);
+
   return (
     <>
       <style
@@ -340,52 +365,48 @@ export default function ProductDetailClient({
                 className="relative bg-white overflow-hidden lg:rounded-2xl"
                 style={{ aspectRatio: "1/1" }}
               >
-                <div className="md:hidden w-full h-full relative overflow-hidden">
-                  <motion.div
-                    drag="x"
-                    dragConstraints={{ left: 0, right: 0 }}
-                    dragElastic={0.08}
-                    onDragEnd={(_, info) => {
-                      if (
-                        info.offset.x < -60 &&
-                        activeImageIndex < images.length - 1
-                      )
-                        setActiveImageIndex((p) => p + 1);
-                      else if (info.offset.x > 60 && activeImageIndex > 0)
-                        setActiveImageIndex((p) => p - 1);
-                    }}
-                    animate={{ x: `-${activeImageIndex * 100}%` }}
-                    transition={{ type: "spring", stiffness: 320, damping: 32 }}
-                    className="flex w-full h-full"
+                <div className="md:hidden w-full h-full relative">
+                  <div
+                    ref={scrollRef}
+                    onScroll={handleScroll}
+                    className="flex w-full h-full overflow-x-auto snap-x snap-mandatory hide-sb"
+                    style={{ WebkitOverflowScrolling: "touch" }}
                   >
                     {images.map((img, i) => (
                       <div
                         key={i}
-                        className="w-full h-full shrink-0 relative p-6"
+                        className="w-full h-full shrink-0 snap-center relative p-6"
                       >
                         <Image
                           src={img}
                           alt={product.name}
                           fill
-                          className="object-contain pointer-events-none"
+                          className="object-contain"
                           priority={i === 0}
+                          sizes="(max-width: 768px) 100vw, 50vw"
                         />
                       </div>
                     ))}
-                  </motion.div>
+                  </div>
                   {images.length > 1 && (
-                    <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-10">
+                    <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-10">
                       {images.map((_, i) => (
-                        <div
+                        <motion.div
                           key={i}
-                          className={`h-1 rounded-full transition-all duration-300 ${activeImageIndex === i ? "w-5 bg-black" : "w-1 bg-black/20"}`}
+                          initial={false}
+                          animate={{ 
+                            width: activeImageIndex === i ? 24 : 6,
+                            backgroundColor: activeImageIndex === i ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.15)",
+                          }}
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                          className="h-1.5 rounded-full"
                         />
                       ))}
                     </div>
                   )}
                   {images.length > 1 && (
-                    <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white text-[11px] font-medium px-2 py-0.5 rounded-full tracking-wide">
-                      {activeImageIndex + 1}/{images.length}
+                    <div className="absolute top-4 right-4 bg-white/70 backdrop-blur-md text-black/80 text-[10px] font-bold px-2 py-0.5 rounded-full border border-black/[0.05] shadow-sm tabular-nums">
+                      {activeImageIndex + 1} / {images.length}
                     </div>
                   )}
                 </div>
@@ -409,6 +430,7 @@ export default function ProductDetailClient({
                         fill
                         className="object-contain pointer-events-none"
                         priority
+                        sizes="(max-width: 768px) 100vw, 50vw"
                       />
                     </motion.div>
                   </AnimatePresence>

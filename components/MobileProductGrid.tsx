@@ -2,6 +2,7 @@
 
 import { type Product } from "@/models/Product";
 import UniversalProductCard from "./UniversalProductCard";
+import { motion } from "framer-motion";
 
 interface MobileProductGridProps {
   products: Product[];
@@ -16,7 +17,7 @@ export default function MobileProductGrid({
     <div className="grid grid-cols-2 gap-3 px-3 pb-32">
       {products.map((product, index) => (
         <UniversalProductCard
-          key={product.id}
+          key={`prod-${product.id || 'empty'}-${index}`}
           product={product}
           index={index}
           statusBadgeMode={statusBadgeMode}

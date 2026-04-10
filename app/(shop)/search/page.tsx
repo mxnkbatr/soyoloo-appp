@@ -111,7 +111,7 @@ function SearchContent() {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.05, delayChildren: 0.05 }
+      transition: { staggerChildren: 0.015, delayChildren: 0.05 }
     }
   };
 
@@ -212,7 +212,7 @@ function SearchContent() {
                 className="grid grid-cols-4 gap-3"
               >
                 {categories.map((cat, idx) => (
-                  <Link key={cat.id || idx} href={`/categories?selected=${cat.id || cat._id}`}>
+                  <Link key={`scat-${cat.id || 'empty'}-${idx}`} href={`/categories?selected=${cat.id || cat._id}`}>
                     <motion.div
                       variants={itemVariants}
                       whileTap={{ scale: 0.93 }}
@@ -254,7 +254,7 @@ function SearchContent() {
               className="grid grid-cols-2 gap-3"
             >
               {recommended.map((product, index) => (
-                <motion.div key={product.id} variants={itemVariants}>
+                <motion.div key={`srec-${product.id || 'empty'}-${index}`} variants={itemVariants}>
                   <UniversalProductCard product={product as any} index={index} />
                 </motion.div>
               ))}
@@ -359,7 +359,7 @@ function SearchContent() {
             className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
           >
             {products.map((product, index) => (
-              <motion.div key={product.id} variants={itemVariants}>
+              <motion.div key={`sres-${product.id || 'empty'}-${index}`} variants={itemVariants}>
                 <UniversalProductCard product={product as any} index={index} />
               </motion.div>
             ))}

@@ -88,9 +88,9 @@ export default function BannerSlider() {
               src={banners[currentIndex]?.image || ''}
               alt={banners[currentIndex]?.title || `Banner ${currentIndex + 1}`}
               fill
-              priority
+              priority={currentIndex === 0}
               className="object-cover"
-              sizes="100vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1600px) 100vw, 1600px"
             />
           </div>
 
