@@ -18,6 +18,8 @@ import toast from 'react-hot-toast';
 import { Camera as CapCamera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 
+import NativeHeader from '@/components/ui/NativeHeader';
+
 type Tab = 'overview' | 'orders' | 'password';
 
 interface Order {
@@ -230,40 +232,37 @@ export default function ProfilePage() {
     .reduce((sum, o) => sum + (Number(o.total || o.totalPrice) || 0), 0);
 
   return (
-    <div className="min-h-screen bg-[#F2F2F7] pb-[120px] font-sans">
+    <div className="min-h-screen bg-[#F2F2F7] pb-[120px] pt-14 lg:pt-0 font-sans">
+      <NativeHeader title="Профайл" showBack={false} />
 
-      {/* ─── HEADER ─── */}
-      <div className="relative bg-[#FF5000] pt-14 pb-20 px-4 flex flex-col items-center overflow-hidden">
-        {/* Subtle inner glow */}        
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B00] via-[#FF5000] to-[#E84800]" />
-        <div className="absolute bottom-0 left-0 w-full h-16 bg-[#F2F2F7] rounded-t-[36px]" />
-
-        {/* Avatar */}
-        <div className="relative mb-3 z-10">
-          <div className="w-[90px] h-[90px] rounded-full border-4 border-white shadow-xl bg-white flex items-center justify-center overflow-hidden">
-            {user.imageUrl ? (
-              <Image src={user.imageUrl} alt={user.name || 'User'} width={90} height={90} className="object-cover w-full h-full" />
-            ) : (
-              <span className="text-[34px] font-extrabold text-[#FF5000]">{initials}</span>
-            )}
+        {/* ─── PROFILE HERO ─── */}
+        <div className="bg-white px-4 py-8 flex flex-col items-center border-b border-gray-100">
+          <div className="relative mb-4">
+            <div className="w-24 h-24 rounded-full border-2 border-gray-100 shadow-sm bg-gray-50 flex items-center justify-center overflow-hidden">
+              {user.imageUrl ? (
+                <Image src={user.imageUrl} alt={user.name || 'User'} width={96} height={96} className="object-cover w-full h-full" />
+              ) : (
+                <span className="text-[36px] font-extrabold text-gray-300">{initials}</span>
+              )}
+            </div>
+            <button
+              onClick={handlePhotoUpload}
+              disabled={photoUploading}
+              className="absolute bottom-0 right-0 w-8 h-8 bg-[#FF5000] rounded-full flex items-center justify-center shadow-lg border-2 border-white active:scale-90 transition-transform disabled:opacity-60"
+            >
+              {photoUploading
+                ? <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                : <Camera className="w-4 h-4 text-white" strokeWidth={2.5} />}
+            </button>
           </div>
-          <button
-            onClick={handlePhotoUpload}
-            disabled={photoUploading}
-            className="absolute bottom-0.5 right-0.5 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg border border-gray-100 active:scale-90 transition-transform disabled:opacity-60"
-          >
-            {photoUploading
-              ? <span className="w-3 h-3 border-2 border-[#FF5000]/40 border-t-[#FF5000] rounded-full animate-spin" />
-              : <Camera className="w-3.5 h-3.5 text-[#FF5000]" strokeWidth={2.5} />}
-          </button>
-        </div>
 
-        <h1 className="text-[20px] font-bold text-white tracking-tight mb-0.5 z-10">{user.name || 'Хэрэглэгч'}</h1>
-        <p className="text-[13px] text-white/80 font-medium z-10">{user.phone || user.email || ''}</p>
-        {user.role === 'admin' && (
-          <span className="mt-2 px-3 py-1 bg-white/25 backdrop-blur-sm rounded-full text-white text-[11px] font-bold tracking-widest z-10">АДМИН</span>
-        )}
-      </div>
+          <h1 className="text-[22px] font-bold text-gray-900 tracking-tight mb-1">{user.name || 'Хэрэглэгч'}</h1>
+          <p className="text-[14px] text-gray-500 font-medium mb-3">{user.phone || user.email || ''}</p>
+          
+          {user.role === 'admin' && (
+            <span className="px-3 py-1 bg-amber-100 text-amber-800 text-[10px] font-bold tracking-widest rounded-full uppercase">АДМИН</span>
+          )}
+        </div>
 
       {/* ─── STATS ROW ─── */}
       <div className="relative z-20 px-4 -mt-4 mb-5">

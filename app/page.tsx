@@ -11,21 +11,24 @@ import {
   Tag,
 } from "lucide-react";
 
-import PremiumProductGrid from "@/components/PremiumProductGrid";
-import BannerSlider from "@/components/BannerSlider";
-import SpecialProductsCarousel from "@/components/SpecialProductsCarousel";
-import MobileFeaturedCarousel from "@/components/MobileFeaturedCarousel";
+import dynamic from "next/dynamic";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useProducts } from "@/lib/hooks/useProducts";
 import { type Product } from "@/models/Product";
-import MobileHero from "@/components/MobileHero";
-import MobileProductGrid from "@/components/MobileProductGrid";
-import InfiniteScrollTrigger from "@/components/InfiniteScrollTrigger";
-import BottomSheet from "@/components/ui/BottomSheet";
 import { triggerHaptic } from "@/lib/haptics";
+
+// Dynamic imports for performance optimization
+const PremiumProductGrid = dynamic(() => import("@/components/PremiumProductGrid"), { ssr: true });
+const MobileHero = dynamic(() => import("@/components/MobileHero"), { ssr: true });
+const MobileProductGrid = dynamic(() => import("@/components/MobileProductGrid"), { ssr: true });
+const BannerSlider = dynamic(() => import("@/components/BannerSlider"), { ssr: false });
+const SpecialProductsCarousel = dynamic(() => import("@/components/SpecialProductsCarousel"), { ssr: false });
+const MobileFeaturedCarousel = dynamic(() => import("@/components/MobileFeaturedCarousel"), { ssr: false });
+const InfiniteScrollTrigger = dynamic(() => import("@/components/InfiniteScrollTrigger"), { ssr: false });
+const BottomSheet = dynamic(() => import("@/components/ui/BottomSheet"), { ssr: false });
 
 type FilterType = "all" | "Бэлэн" | "Захиалга";
 type SortType = "newest" | "price-low" | "price-high" | "name-az";
@@ -69,6 +72,7 @@ export default function HomePage() {
     size,
     setSize,
     error,
+    mutate,
   } = useProducts({
     minPrice: minPrice || undefined,
     maxPrice: maxPrice || undefined,
@@ -603,6 +607,6 @@ export default function HomePage() {
           {/* ... footer links */}
         </div>
       </section>
-    </div>
+      </div>
   );
 }

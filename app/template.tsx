@@ -11,10 +11,14 @@ export default function Template({ children }: { children: React.ReactNode }) {
       key={pathname}
       initial={{ x: 20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
+      exit={{ x: -20, opacity: 0 }}
       transition={{ 
-        duration: 0.3, 
-        ease: [0.25, 0.1, 0.25, 1] // Apple-style ease-out
+        type: "spring",
+        stiffness: 380,
+        damping: 30,
+        mass: 0.8
       }}
+      style={{ willChange: "transform, opacity" }}
       className="w-full min-h-screen"
     >
       {children}

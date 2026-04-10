@@ -322,9 +322,9 @@ export default function ProductDetailClient({
         }}
       />
 
-      <div className="pd-root min-h-screen bg-[#F6F6F4] pb-[120px] md:pb-16">
+      <div className="pd-root min-h-screen bg-[#F6F6F4] pb-[160px] md:pb-16">
         <div
-          className="lg:hidden fixed top-0 left-0 right-0 z-[110] flex items-center justify-between px-4 bg-[#F6F6F4]"
+          className="lg:hidden fixed top-0 left-0 right-0 z-[110] flex items-center justify-between px-5 bg-[#F6F6F4]/80 backdrop-blur-md border-b border-black/[0.03]"
           style={{
             paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)",
             paddingBottom: "12px",
@@ -394,7 +394,7 @@ export default function ProductDetailClient({
                         <motion.div
                           key={i}
                           initial={false}
-                          animate={{ 
+                          animate={{
                             width: activeImageIndex === i ? 24 : 6,
                             backgroundColor: activeImageIndex === i ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.15)",
                           }}
@@ -472,7 +472,7 @@ export default function ProductDetailClient({
                       </span>
                     </div>
                   )}
-                  
+
                   {/* Order Badge */}
                   {product.sections?.includes("Захиалга") && (
                     <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full border border-black/[0.06] shadow-sm">
@@ -886,41 +886,53 @@ export default function ProductDetailClient({
           )}
         </div>
 
-        <div
-          className="fixed left-0 right-0 z-[60] md:hidden bg-white border-t border-black/[0.06]"
-          style={{ bottom: "calc(56px + env(safe-area-inset-bottom, 0px))" }}
-        >
-          <div className="flex items-center gap-3 px-4 py-3">
-            <div className="flex flex-col min-w-0 mr-auto">
-              <span className="text-[10px] text-black/30 font-medium uppercase tracking-wider">
-                Нийт үнэ
-              </span>
-              <span className="text-[18px] font-bold text-black leading-tight tracking-tight">
-                {formatPrice(displayPrice * quantity)}
-              </span>
-            </div>
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={handleAddToCart}
-              disabled={!canAddToCart}
-              className={`flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl font-semibold text-[13px] transition-all duration-200 shrink-0 disabled:opacity-40 ${addedToCart ? "bg-emerald-500 text-white" : "bg-black/[0.07] text-black"}`}
-            >
-              {addedToCart ? (
-                <Check className="w-4 h-4" strokeWidth={2.5} />
-              ) : (
-                <ShoppingBag className="w-4 h-4" strokeWidth={2} />
-              )}
-              {addedToCart ? "Нэмэгдлээ" : "Сагсанд"}
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={handleBuyNow}
-              disabled={!canAddToCart}
-              className="flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-[#FF5000] text-white font-semibold text-[13px] shadow-[0_4px_14px_rgba(255,80,0,0.3)] active:bg-[#E64800] transition-colors shrink-0 disabled:opacity-40"
-            >
-              Авах <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
-            </motion.button>
+        {/* The Action Bar is moved to the root level below to ensure visibility */}
+      </div>
+
+      {/* ── MOBILE FIXED ACTION BAR — Relocated to Root for Stability ───────────────── */}
+      <div
+        className="fixed left-0 right-0 z-[150] md:hidden bg-white border-t border-black/[0.06] shadow-[0_-8px_24px_rgba(0,0,0,0.04)]"
+        style={{
+          bottom: "calc(64px + env(safe-area-inset-bottom, 0px))",
+          transform: "translateZ(0)",
+          WebkitTransform: "translateZ(0)",
+        }}
+      >
+        <div className="flex items-center gap-3 px-5 py-3.5">
+          <div className="flex flex-col min-w-0 mr-auto">
+            <span className="text-[10px] text-black/30 font-bold uppercase tracking-wider mb-0.5">
+              Нийт үнэ
+            </span>
+            <span className="text-[19px] font-black text-black leading-none tracking-tight">
+              {formatPrice(displayPrice * quantity)}
+            </span>
           </div>
+
+          <motion.button
+            whileTap={{ scale: 0.94 }}
+            onClick={handleAddToCart}
+            disabled={!canAddToCart}
+            className={`flex items-center justify-center gap-2 px-5 h-[48px] rounded-2xl font-bold text-[13px] transition-all duration-300 shrink-0 disabled:opacity-40 shadow-sm ${addedToCart
+                ? "bg-emerald-500 text-white shadow-emerald-200"
+                : "bg-zinc-100 text-zinc-900 border border-zinc-200/50"
+              }`}
+          >
+            {addedToCart ? (
+              <Check className="w-4 h-4" strokeWidth={3} />
+            ) : (
+              <ShoppingBag className="w-4 h-4" strokeWidth={2.5} />
+            )}
+            {addedToCart ? "Нэмэгдлээ" : "Сагсанд"}
+          </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.94 }}
+            onClick={handleBuyNow}
+            disabled={!canAddToCart}
+            className="flex items-center justify-center gap-2 px-6 h-[48px] rounded-2xl bg-[#FF5000] text-white font-bold text-[14px] shadow-[0_8px_20px_rgba(255,80,0,0.3)] active:bg-[#E64800] transition-all shrink-0 disabled:opacity-40"
+          >
+            Авах <ArrowRight className="w-4 h-4" strokeWidth={3} />
+          </motion.button>
         </div>
       </div>
 

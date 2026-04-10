@@ -12,6 +12,8 @@ import AntiGravityCartItem from '@/components/cart/AntiGravityCartItem';
 import TaobaoStickyFooter from '@/components/cart/TaobaoStickyFooter';
 import UniversalProductCard from '@/components/UniversalProductCard';
 
+import NativeHeader from '@/components/ui/NativeHeader';
+
 export default function CartPage() {
     const { items, getTotalItems } = useCartStore();
     const { t } = useTranslation();
@@ -23,7 +25,9 @@ export default function CartPage() {
 
     if (items.length === 0) {
         return (
-            <div className="min-h-screen bg-[#F2F2F7] pt-16 pb-28 flex flex-col items-center relative overflow-hidden">
+            <div className="min-h-screen bg-[#F2F2F7] pt-14 pb-28 flex flex-col items-center relative overflow-hidden">
+                <NativeHeader title={t('cart', 'title')} />
+                
                 <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-orange-400/8 blur-[90px] pointer-events-none" />
                 
                 <motion.div
@@ -121,34 +125,14 @@ export default function CartPage() {
     const preOrderItems = items.filter(i => i.stockStatus === 'pre-order');
 
     return (
-        <div className="min-h-screen bg-[#F5F5F3] pt-16 pb-[calc(env(safe-area-inset-bottom)+260px)] lg:pb-[260px]">
-            <div className="max-w-2xl mx-auto px-4">
-                {/* Header with Glassmorphism */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-6 flex items-center justify-between px-2"
-                >
-                    <div className="flex items-center gap-4">
-                        <Link href="/">
-                            <motion.div
-                                whileTap={{ scale: 0.9 }}
-                                className="p-2 text-gray-400 hover:text-gray-900 transition-colors"
-                            >
-                                <ArrowLeft className="w-6 h-6" strokeWidth={1.5} />
-                            </motion.div>
-                        </Link>
-                        <div className="flex flex-col">
-                            <h1 className="text-[26px] font-extrabold text-[#111] tracking-tight mb-0.5">{t('cart', 'title')}</h1>
-                            <div className="flex items-center gap-1.5">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#FF5000]" />
-                                <span className="text-[13px] font-medium text-gray-500 leading-none">
-                                    {getTotalItems()} бараа
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
+        <div className="min-h-screen bg-[#F5F5F3] pt-14 pb-[calc(env(safe-area-inset-bottom)+260px)] lg:pb-[260px]">
+            <NativeHeader 
+                title={t('cart', 'title')} 
+                subtitle={`${getTotalItems()} бараа`}
+            />
+
+            <div className="max-w-2xl mx-auto px-4 mt-6">
+
 
                 {/* Cart Sections */}
                 <div className="space-y-10">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, memo } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,13 +23,13 @@ interface UniversalProductCardProps {
   isAdmin?: boolean;
 }
 
-export default function UniversalProductCard({
+const UniversalProductCard = memo(({
   product: originalProduct,
   index = 0,
   disableInitialAnimation = false,
   statusBadgeMode = "default",
   isAdmin = false,
-}: UniversalProductCardProps) {
+}: UniversalProductCardProps) => {
   const router = useRouter();
   const product = originalProduct;
 
@@ -42,7 +42,6 @@ export default function UniversalProductCard({
   } = useWishlistStore();
   const isWishlisted = isInWishlist(product.id);
 
-  const [activeIdx, setActiveIdx] = useState(0);
   const isDragging = useRef(false);
 
   const allImages: string[] = (() => {
@@ -123,18 +122,6 @@ export default function UniversalProductCard({
     return () => observer.disconnect();
   }, []);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const handleScroll = useCallback(() => {
-    if (!scrollRef.current) return;
-    const { scrollLeft, clientWidth } = scrollRef.current;
-    if (clientWidth === 0) return;
-    const newIndex = Math.round(scrollLeft / clientWidth);
-    if (newIndex !== activeIdx) {
-      setActiveIdx(newIndex);
-      triggerHaptic();
-    }
-  }, [activeIdx]);
-
   return (
     <div
       ref={cardRef}
@@ -146,69 +133,20 @@ export default function UniversalProductCard({
       <div
         className="block cursor-pointer"
         onClick={(e) => {
-          if (!isDragging.current) {
-            router.push(`/product/${product.id}`);
-          }
+          router.push(`/product/${product.id}`);
         }}
       >
         <div className="bg-white rounded-[20px] sm:rounded-[2rem] overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1">
           {/* ── Image area ─────────────────────────────── */}
           <div className="relative aspect-square bg-[#F7F7F5] overflow-hidden rounded-t-[20px] sm:rounded-t-[2rem]">
-            {/* Swipeable image slider */}
-            {hasMultiple ? (
-              <div
-                ref={scrollRef}
-                onScroll={handleScroll}
-                className="flex w-full h-full overflow-x-auto snap-x snap-mandatory hide-sb"
-                style={{ WebkitOverflowScrolling: "touch" }}
-              >
-                {allImages.map((img, i) => (
-                  <div key={i} className="w-full h-full shrink-0 snap-center relative">
-                    <Image
-                      src={img}
-                      alt={product.name}
-                      fill
-                      className="object-cover sm:object-contain sm:p-6 pointer-events-none transition-transform duration-500 group-hover:scale-105"
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      priority={i === 0 && index < 4}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <Image
-                src={allImages[0]}
-                alt={product.name}
-                fill
-                className="object-cover sm:object-contain sm:p-6 transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                priority={index < 4}
-              />
-            )}
-
-            {/* ── Image Indicators (Dots + Badge) ───────────────── */}
-            {hasMultiple && (
-              <>
-                {/* Dots */}
-                <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
-                  {allImages.map((_, i) => (
-                    <motion.div
-                      key={i}
-                      initial={false}
-                      animate={{ 
-                        width: activeIdx === i ? 12 : 4,
-                        backgroundColor: activeIdx === i ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.15)",
-                      }}
-                      className="h-1 rounded-full"
-                    />
-                  ))}
-                </div>
-                {/* Badge */}
-                <div className="absolute top-3 right-3 bg-white/70 backdrop-blur-md text-black/80 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-black/[0.05] shadow-sm z-20 tabular-nums">
-                  {activeIdx + 1} / {allImages.length}
-                </div>
-              </>
-            )}
+            <Image
+              src={allImages[0]}
+              alt={product.name}
+              fill
+              className="object-cover sm:object-contain sm:p-6 transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              priority={index < 4}
+            />
 
             {/* ── Top-left badges ───────────────────────── */}
             <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start">
@@ -393,5 +331,7 @@ export default function UniversalProductCard({
       </div>
     </div>
   );
-}
+});
+
+export default UniversalProductCard;
 

@@ -14,7 +14,13 @@ export default function MobileProductGrid({
   statusBadgeMode = "default",
 }: MobileProductGridProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 px-3 pb-32">
+    <div 
+      className="grid grid-cols-2 gap-3 px-3 pb-32"
+      style={{ 
+        contentVisibility: "auto",
+        containIntrinsicSize: "0 400px"
+      }}
+    >
       {products.map((product, index) => (
         <UniversalProductCard
           key={`prod-${product.id || 'empty'}-${index}`}

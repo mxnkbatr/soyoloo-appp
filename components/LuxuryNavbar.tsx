@@ -224,8 +224,8 @@ export default function LuxuryNavbar() {
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 100 }}
         className={`hidden lg:block fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-            ? "bg-white/80 backdrop-blur-xl border-b border-black/[0.05] shadow-sm"
-            : "bg-white/80 backdrop-blur-xl border-b border-black/[0.02]"
+          ? "bg-white/80 backdrop-blur-xl border-b border-black/[0.05] shadow-sm"
+          : "bg-white/80 backdrop-blur-xl border-b border-black/[0.02]"
           }`}
       >
         <div className="max-w-7xl mx-auto">
@@ -264,8 +264,8 @@ export default function LuxuryNavbar() {
                 <form onSubmit={handleSearch} className="relative w-full">
                   <motion.div
                     className={`relative w-full group rounded-full transition-all duration-300 ${searchFocused
-                        ? "bg-white border-2 border-[#FF5000] shadow-md"
-                        : "bg-[#f4f4f5] border-2 border-transparent hover:bg-gray-200/50"
+                      ? "bg-white border-2 border-[#FF5000] shadow-md"
+                      : "bg-[#f4f4f5] border-2 border-transparent hover:bg-gray-200/50"
                       }`}
                     animate={{
                       scale: searchFocused ? 1.02 : 1,
@@ -289,8 +289,8 @@ export default function LuxuryNavbar() {
                       >
                         <Search
                           className={`w-6 h-6 transition-colors duration-300 ${searchFocused
-                              ? "text-[#FF5000]"
-                              : "text-gray-400 group-hover:text-[#FF5000]"
+                            ? "text-[#FF5000]"
+                            : "text-gray-400 group-hover:text-[#FF5000]"
                             }`}
                           strokeWidth={1.5}
                         />
@@ -338,8 +338,8 @@ export default function LuxuryNavbar() {
                           }
                         }}
                         className={`mr-1.5 p-2 rounded-full transition-all duration-300 ${searchFocused || searchQuery
-                            ? "bg-[#FF5000] text-white shadow-lg shadow-orange-500/30"
-                            : "bg-gray-100 text-gray-400 group-hover:bg-[#FF5000] group-hover:text-white"
+                          ? "bg-[#FF5000] text-white shadow-lg shadow-orange-500/30"
+                          : "bg-gray-100 text-gray-400 group-hover:bg-[#FF5000] group-hover:text-white"
                           }`}
                       >
                         <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
@@ -496,8 +496,8 @@ export default function LuxuryNavbar() {
                   >
                     <Heart
                       className={`w-6 h-6 transition-colors ${mounted && wishlistItemsCount > 0
-                          ? "text-[#FF5000] fill-orange-50/50"
-                          : "text-gray-600 group-hover:text-[#FF5000]"
+                        ? "text-[#FF5000] fill-orange-50/50"
+                        : "text-gray-600 group-hover:text-[#FF5000]"
                         }`}
                       strokeWidth={1.5}
                     />
@@ -519,8 +519,8 @@ export default function LuxuryNavbar() {
                   >
                     <ShoppingBag
                       className={`w-6 h-6 transition-colors ${mounted && cartItemsCount > 0
-                          ? "text-[#FF5000]"
-                          : "text-gray-600 group-hover:text-[#FF5000]"
+                        ? "text-[#FF5000]"
+                        : "text-gray-600 group-hover:text-[#FF5000]"
                         }`}
                       strokeWidth={1.5}
                     />
@@ -561,14 +561,14 @@ export default function LuxuryNavbar() {
                     >
                       <div
                         className={`flex items-center gap-2 transition-all duration-300 ${isActive
-                            ? "text-orange-600"
-                            : "text-gray-600 hover:text-orange-500"
+                          ? "text-orange-600"
+                          : "text-gray-600 hover:text-orange-500"
                           }`}
                       >
                         <Icon
                           className={`w-4 h-4 transition-colors duration-300 ${isActive
-                              ? "text-orange-600"
-                              : "group-hover:text-orange-500"
+                            ? "text-orange-600"
+                            : "group-hover:text-orange-500"
                             }`}
                           strokeWidth={1.2}
                         />
@@ -811,7 +811,7 @@ export default function LuxuryNavbar() {
             WebkitBackdropFilter: "blur(20px)",
           }}
         >
-          <div className="flex items-stretch h-14">
+          <div className="flex items-stretch h-16">
             {mobileNavItems.map((item) => {
               const isActive =
                 pathname === item.href ||
@@ -821,25 +821,46 @@ export default function LuxuryNavbar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  onClick={() => triggerHaptic()}
-                  className="flex-1 flex flex-col items-center justify-center group"
+                  onClick={() => {
+                    triggerHaptic();
+                    if (isActive) {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
+                  className="flex-1 flex flex-col items-center justify-center gap-0.5 py-1"
                 >
-                  <div className="relative">
-                    <Icon
-                      className={`w-6 h-6 ${isActive ? "text-[#FF5000]" : "text-slate-400"}`}
-                      strokeWidth={isActive ? 2.2 : 1.8}
-                    />
-                    {mounted && item.count !== undefined && item.count > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#FF5000] text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white">
-                        {item.count > 9 ? "9+" : item.count}
-                      </span>
-                    )}
+                  <div className="relative flex flex-col items-center">
+                    {/* Pill background for active state */}
+                    <div
+                      className={`flex items-center justify-center w-12 h-7 rounded-full transition-all duration-200 ${isActive ? "bg-[#FF5000]/10" : "bg-transparent"
+                        }`}
+                    >
+                      <Icon
+                        className={`w-[22px] h-[22px] transition-all duration-200 ${isActive ? "text-[#FF5000]" : "text-slate-400"
+                          }`}
+                        strokeWidth={isActive ? 2.5 : 1.8}
+                        fill={isActive ? "currentColor" : "none"}
+                      />
+                      {mounted && item.count !== undefined && item.count > 0 && (
+                        <span className="absolute -top-0.5 right-0.5 w-4 h-4 bg-[#FF5000] text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                          {item.count > 9 ? "9+" : item.count}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <span
-                    className={`text-[10px] font-bold mt-1 ${isActive ? "text-[#FF5000]" : "text-slate-400"}`}
+                    className={`text-[10px] transition-all duration-200 ${isActive
+                        ? "font-bold text-[#FF5000]"
+                        : "font-medium text-slate-400"
+                      }`}
                   >
                     {item.name}
                   </span>
+                  {/* Active dot indicator */}
+                  <div
+                    className={`w-1 h-1 rounded-full transition-all duration-200 ${isActive ? "bg-[#FF5000]" : "bg-transparent"
+                      }`}
+                  />
                 </Link>
               );
             })}

@@ -11,6 +11,8 @@ import useSWR from 'swr';
 import { toast } from 'react-hot-toast';
 import { formatPrice } from '@/lib/utils';
 
+import NativeHeader from '@/components/ui/NativeHeader';
+
 const TABS = ['Бүгд', 'Хүлээгдэж буй', 'Баталгаажсан', 'Хүргэлтэнд', 'Дууссан'];
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -91,25 +93,13 @@ export default function MyOrdersPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-md h-14 flex items-center px-4 border-b border-slate-100 sticky top-0 z-50 lg:hidden" style={{ paddingTop: 'env(safe-area-inset-top)', height: 'calc(env(safe-area-inset-top) + 3.5rem)' }}>
-        <Link href="/profile" className="p-2 -ml-2 text-slate-900 active:scale-90 transition-transform">
-          <ChevronLeft className="w-6 h-6" strokeWidth={2.5} />
-        </Link>
-        <h1 className="flex-1 text-center text-[16px] font-black text-slate-900 pr-8">
-          Миний захиалга
-        </h1>
-      </div>
-
-      {/* Desktop Header Wrapper (for spacing) */}
-      <div className="hidden lg:block h-6" />
+    <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20 pt-14 lg:pt-0">
+      {/* Native Header */}
+      <NativeHeader title="Миний захиалга" />
 
       <div className="max-w-3xl mx-auto">
-        <div className="hidden lg:flex items-center gap-4 mb-8 px-4">
-          <Link href="/profile" className="p-3 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-[#FF5000] text-slate-400 hover:text-[#FF5000] transition-all">
-            <ChevronLeft className="w-5 h-5" strokeWidth={2.5} />
-          </Link>
+        {/* Desktop Header */}
+        <div className="hidden lg:flex items-center gap-4 py-8 px-4">
           <h1 className="text-3xl font-black text-slate-900">Миний захиалга</h1>
         </div>
 
