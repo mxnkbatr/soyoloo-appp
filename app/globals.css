@@ -15,11 +15,12 @@
     /* Hide scrollbar for Chrome, Safari and Opera */
     -webkit-overflow-scrolling: touch;
   }
-  
+
   @media (max-width: 768px) {
     ::-webkit-scrollbar {
       display: none !important;
     }
+
     * {
       -ms-overflow-style: none !important;
       scrollbar-width: none !important;
@@ -61,7 +62,9 @@ body {
   -webkit-touch-callout: none;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   -webkit-user-select: auto;
   user-select: auto;
 }

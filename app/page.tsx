@@ -76,6 +76,7 @@ export default function HomePage() {
   } = useProducts({
     minPrice: minPrice || undefined,
     maxPrice: maxPrice || undefined,
+    limit: 40,
   });
 
   // Fetch featured products separately for carousels to keep them consistent across tabs
@@ -173,12 +174,8 @@ export default function HomePage() {
         : 1000000;
 
   return (
-    <div className="min-h-screen bg-slate-50/30 relative selection:bg-orange-500 selection:text-white pb-20 lg:pb-0">
-      {/* Aesthetic Mobile Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden lg:opacity-70">
-        <div className="absolute top-[-20%] left-[-20%] w-[70%] h-[70%] rounded-full bg-orange-200/20 blur-[80px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-amber-200/20 blur-[60px]" />
-      </div>
+    <>
+      <div className="min-h-screen bg-[#F2F2F7] relative selection:bg-orange-500 selection:text-white pb-20 lg:pb-0">
 
       {/* MOBILE HERO */}
       <div className="lg:hidden">
@@ -213,19 +210,27 @@ export default function HomePage() {
             {/* Category Tabs Row */}
             <div className="flex items-center gap-2 px-4 pt-3 pb-1 overflow-x-auto scrollbar-hide">
               {(["all", "Бэлэн", "Захиалга"] as const).map((f) => (
-                <button
+                <motion.button
                   key={f}
                   onClick={() => {
                     triggerHaptic();
                     setActiveFilter(f as FilterType);
                   }}
-                  className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 ${activeFilter === f
-                      ? "bg-[#FF5000] text-white shadow-sm"
-                      : "bg-gray-100 text-gray-500"
-                    }`}
+                  className={`relative shrink-0 px-4 py-1.5 rounded-full text-sm font-bold transition-colors duration-200 ${
+                    activeFilter === f ? "text-white" : "bg-gray-100 text-gray-500"
+                  }`}
                 >
-                  {f === "all" ? "Бүгд" : f}
-                </button>
+                  {activeFilter === f && (
+                    <motion.div
+                      layoutId="activeFilterHome"
+                      className="absolute inset-0 bg-[#FF5000] rounded-full shadow-sm"
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">
+                    {f === "all" ? "Бүгд" : f}
+                  </span>
+                </motion.button>
               ))}
             </div>
 
@@ -268,58 +273,6 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* Mobile Price Filter - Bottom Sheet */}
-            <BottomSheet
-              isOpen={showPriceFilter}
-              onClose={() => setShowPriceFilter(false)}
-              title="Үнээр шүүх"
-            >
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] text-gray-400 font-bold uppercase ml-1">Доод үнэ</label>
-                    <input
-                      type="number"
-                      value={minPrice}
-                      onChange={(e) => setMinPrice(e.target.value)}
-                      placeholder={suggestedMin.toLocaleString()}
-                      className="w-full px-4 py-3 text-base border border-gray-100 rounded-2xl bg-gray-50 outline-none focus:border-orange-200"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] text-gray-400 font-bold uppercase ml-1">Дээд үнэ</label>
-                    <input
-                      type="number"
-                      value={maxPrice}
-                      onChange={(e) => setMaxPrice(e.target.value)}
-                      placeholder={suggestedMax.toLocaleString()}
-                      className="w-full px-4 py-3 text-base border border-gray-100 rounded-2xl bg-gray-50 outline-none focus:border-orange-200"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-3 pt-2">
-                  <button
-                    onClick={() => {
-                      triggerHaptic();
-                      setMinPrice("");
-                      setMaxPrice("");
-                    }}
-                    className="flex-1 py-3.5 text-sm font-bold bg-gray-100 text-gray-600 rounded-2xl active:scale-95 transition-transform"
-                  >
-                    Арилгах
-                  </button>
-                  <button
-                    onClick={() => {
-                      triggerHaptic();
-                      setShowPriceFilter(false);
-                    }}
-                    className="flex-1 py-3.5 text-sm font-bold text-white bg-[#FF5000] rounded-2xl shadow-lg shadow-orange-500/20 active:scale-95 transition-transform"
-                  >
-                    Хэрэглэх
-                  </button>
-                </div>
-              </div>
-            </BottomSheet>
           </div>
 
           {/* === DESKTOP: Old Filter Bar (unchanged) === */}
@@ -608,5 +561,68 @@ export default function HomePage() {
         </div>
       </section>
       </div>
+      {/* Mobile Price Filter - Bottom Sheet (Moved outside sticky for correct fixed positioning) */}
+      <BottomSheet
+        isOpen={showPriceFilter}
+        onClose={() => setShowPriceFilter(false)}
+        title="Үнээр шүүх"
+      >
+        <div className="space-y-8 pt-2">
+          {/* Native-style Price Inputs */}
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <label className="text-[13px] font-bold text-gray-400 uppercase tracking-tight ml-2">Үнийн интервал</label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">₮</div>
+                  <input
+                    type="number"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    placeholder={suggestedMin?.toLocaleString()}
+                    className="w-full pl-8 pr-4 py-4 text-[17px] font-semibold bg-black/[0.03] border-transparent rounded-[18px] outline-none focus:bg-black/[0.01] focus:ring-2 focus:ring-orange-500/20 transition-all placeholder:text-gray-300"
+                  />
+                </div>
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">₮</div>
+                  <input
+                    type="number"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    placeholder={suggestedMax?.toLocaleString()}
+                    className="w-full pl-8 pr-4 py-4 text-[17px] font-semibold bg-black/[0.03] border-transparent rounded-[18px] outline-none focus:bg-black/[0.01] focus:ring-2 focus:ring-orange-500/20 transition-all placeholder:text-gray-300"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Large Native Action Buttons */}
+          <div className="flex flex-col gap-3 pb-2">
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                triggerHaptic();
+                setShowPriceFilter(false);
+              }}
+              className="w-full py-4.5 text-[17px] font-bold text-white bg-[#FF5000] rounded-[18px] shadow-xl shadow-orange-500/20 active:opacity-90 transition-all"
+            >
+              Үр дүнг харах
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                triggerHaptic();
+                setMinPrice("");
+                setMaxPrice("");
+              }}
+              className="w-full py-4 text-[15px] font-bold text-gray-500 bg-black/[0.04] rounded-[18px] transition-all"
+            >
+              Бүгдийг арилгах
+            </motion.button>
+          </div>
+        </div>
+      </BottomSheet>
+    </>
   );
 }

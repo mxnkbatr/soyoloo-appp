@@ -80,3 +80,26 @@ export function debounce<T extends (...args: any[]) => any>(
     timeout = setTimeout(() => func(...args), wait);
   };
 }
+
+/**
+ * Get absolute API URL for server or client components
+ */
+export function getApiUrl(path: string): string {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  
+  // In browser during development, prefer relative paths to avoid CORS issues
+  if (
+    typeof window !== 'undefined' && 
+    process.env.NODE_ENV === 'development'
+  ) {
+    return path.startsWith('/') ? path : `/${path}`;
+  }
+
+  if (!baseUrl) return path.startsWith('/') ? path : `/${path}`;
+  
+  // Ensure we don't double slash
+  const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  
+  return `${cleanBase}${cleanPath}`;
+}

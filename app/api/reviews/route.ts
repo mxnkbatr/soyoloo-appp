@@ -8,8 +8,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get('productId');
 
-    if (!productId) {
-      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
+    if (!productId || !ObjectId.isValid(productId)) {
+      return NextResponse.json({ error: 'Valid Product ID is required' }, { status: 400 });
     }
 
     const reviewsCollection = await getCollection('reviews');

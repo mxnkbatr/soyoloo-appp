@@ -29,7 +29,7 @@ const FAQS = [
     {
         id: 5,
         question: 'Холбоо барих мэдээлэл',
-        answer: 'Та манай хэрэглэгчийн үйлчилгээний төвтэй 85552229 дугаараар эсвэл info@soyol.mn хаягаар холбогдоорой.'
+        answer: 'Та манай хэрэглэгчийн үйлчилгээний төвтэй 85552229 дугаараар эсвэл info@soyolvideoshop.mn хаягаар холбогдоорой.'
     }
 ];
 
@@ -147,14 +147,14 @@ export default function HelpPage() {
                             <span className="text-[13px] font-bold text-[#FF6B00] px-3 py-1.5 bg-orange-50 rounded-full">Бичих</span>
                         </button>
 
-                        <a href="mailto:info@soyol.mn" className="flex items-center justify-between p-4 bg-white active:bg-gray-50 transition-colors">
+                        <a href="mailto:info@soyolvideoshop.mn" className="flex items-center justify-between p-4 bg-white active:bg-gray-50 transition-colors">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
                                     <Mail className="w-5 h-5 text-gray-500" strokeWidth={2} />
                                 </div>
                                 <div>
                                     <div className="text-[13px] text-[#999999] font-medium mb-0.5">И-мэйл</div>
-                                    <div className="text-[15px] font-bold text-[#1A1A1A]">info@soyol.mn</div>
+                                    <div className="text-[15px] font-bold text-[#1A1A1A]">info@soyolvideoshop.mn</div>
                                 </div>
                             </div>
                         </a>

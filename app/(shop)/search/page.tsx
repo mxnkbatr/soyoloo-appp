@@ -9,13 +9,15 @@ import {
   Search, ShoppingCart, Eye, Sparkles,
   Zap, Tag, Globe, Truck, LayoutGrid, Award, Flame,
   Camera, Mic, ChevronRight, Clock, Star, X,
-  Phone, Laptop, Watch, Headphones, Gamepad, Heart, Gift, MoreHorizontal
+  Phone, Laptop, Watch, Headphones, Gamepad, Heart, Gift, MoreHorizontal, ChevronDown, ChevronUp
 } from 'lucide-react';
-import { formatPrice, getStarRating } from '@lib/utils';
+import { formatPrice, getStarRating, getApiUrl } from '@lib/utils';
 import { useCartStore } from '@store/cartStore';
 import toast from 'react-hot-toast';
 import UniversalProductCard from '@/components/UniversalProductCard';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useProducts } from '@/lib/hooks/useProducts';
+import { triggerHaptic } from '@/lib/haptics';
 
 interface ProductItem {
   id: string;
@@ -35,10 +37,29 @@ function SearchContent() {
   const router = useRouter();
   const pathname = usePathname();
   const q = searchParams.get('q') ?? '';
-  const [products, setProducts] = useState<ProductItem[]>([]);
-  const [recommended, setRecommended] = useState<ProductItem[]>([]);
+
+  // Use the standard hook for search results
+  const {
+    products,
+    isLoading: isLoadingResults,
+    isLoadingMore: isLoadingMoreResults,
+    isReachingEnd: isReachingEndResults,
+    setSize: setSizeResults,
+    size: sizeResults,
+  } = useProducts({ q: q || undefined, limit: 12 });
+
+  // Use the standard hook for recommendations
+  const {
+    products: recommended,
+    isLoading: isLoadingRecommended,
+    isLoadingMore: isLoadingMoreRecommended,
+    isReachingEnd: isReachingEndRecommended,
+    setSize: setSizeRecommended,
+    size: sizeRecommended,
+  } = useProducts({ limit: 10 });
+
   const [categories, setCategories] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const addItem = useCartStore((state) => state.addItem);
 
@@ -54,38 +75,24 @@ function SearchContent() {
   }, []);
 
   useEffect(() => {
-    fetch('/api/categories')
-      .then(res => res.json())
+    fetch(getApiUrl('/api/categories'))
+      .then(res => {
+        const contentType = res.headers.get('content-type');
+        if (res.ok && contentType && contentType.includes('application/json')) return res.json();
+        throw new Error('Invalid JSON');
+      })
       .then(data => setCategories(data.categories || (Array.isArray(data) ? data : [])))
-      .catch(() => { });
-
-    fetch('/api/products?limit=8')
-      .then(res => res.json())
-      .then(data => setRecommended(data.products || []))
-      .catch(() => { });
+      .catch((err) => console.error('[Search] Categories fetch failed:', err));
   }, []);
 
   useEffect(() => {
-    if (!q.trim()) {
-      setProducts([]);
-      setIsLoading(false);
-      return;
-    }
-    setIsLoading(true);
+    if (!q.trim()) return;
 
     setRecentSearches(prev => {
       const updated = [q, ...prev.filter(s => s !== q)].slice(0, 5);
       localStorage.setItem('soyol-recent-searches', JSON.stringify(updated));
       return updated;
     });
-
-    fetch(`/api/products?q=${encodeURIComponent(q)}&limit=100`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data.products || []);
-      })
-      .catch(() => setProducts([]))
-      .finally(() => setIsLoading(false));
   }, [q]);
 
   const handleAddToCart = (product: any) => {
@@ -205,29 +212,54 @@ function SearchContent() {
             </div>
 
             {categories.length > 0 ? (
-              <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="show"
-                className="grid grid-cols-4 gap-3"
-              >
-                {categories.map((cat, idx) => (
-                  <Link key={`scat-${cat.id || 'empty'}-${idx}`} href={`/categories?selected=${cat.id || cat._id}`}>
+              <>
+                <motion.div
+                  layout
+                  className="grid grid-cols-4 gap-x-2 gap-y-5"
+                >
+                  <AnimatePresence initial={false}>
+                    {categories.slice(0, isExpanded ? categories.length : 8).map((cat, idx) => (
+                      <Link key={`scat-${idx}-${cat.id || cat._id || ''}`} href={`/categories?selected=${cat.id || cat._id}`}>
+                        <motion.div
+                          layout
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.2, delay: isExpanded ? idx * 0.01 : 0 }}
+                          whileTap={{ scale: 0.93 }}
+                          className="flex flex-col items-center gap-1.5"
+                        >
+                          <div className="w-16 h-16 rounded-[22px] bg-white shadow-sm border border-gray-100 flex items-center justify-center transition-colors active:bg-gray-50">
+                            <span className="text-[26px]">{cat.icon || '📦'}</span>
+                          </div>
+                          <span className="text-[11px] font-semibold text-gray-500 text-center leading-tight line-clamp-2 px-0.5">
+                            {cat.name}
+                          </span>
+                        </motion.div>
+                      </Link>
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
+
+                {categories.length > 8 && (
+                  <motion.button
+                    layout
+                    onClick={() => {
+                      triggerHaptic();
+                      setIsExpanded(!isExpanded);
+                    }}
+                    className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-white/60 border border-gray-100 rounded-2xl text-[13px] font-bold text-gray-500 active:scale-98 transition-all"
+                  >
+                    {isExpanded ? 'Хураах' : 'Бүгдийг үзэх'}
                     <motion.div
-                      variants={itemVariants}
-                      whileTap={{ scale: 0.93 }}
-                      className="flex flex-col items-center gap-2"
+                      animate={{ rotate: isExpanded ? 180 : 0 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     >
-                      <div className="w-16 h-16 rounded-[22px] bg-white shadow-sm border border-gray-100 flex items-center justify-center">
-                        <span className="text-[26px]">{cat.icon || '📦'}</span>
-                      </div>
-                      <span className="text-[11px] font-medium text-gray-600 text-center leading-tight line-clamp-2 px-0.5">
-                        {cat.name}
-                      </span>
+                      <ChevronDown className="w-4 h-4" />
                     </motion.div>
-                  </Link>
-                ))}
-              </motion.div>
+                  </motion.button>
+                )}
+              </>
             ) : (
               <div className="grid grid-cols-4 gap-3">
                 {Array(8).fill(0).map((_, i) => (
@@ -263,9 +295,23 @@ function SearchContent() {
               ))}
             </motion.div>
 
-            {recommended.length > 0 && (
-              <button className="w-full mt-4 py-3.5 bg-white border border-gray-200 rounded-2xl text-gray-500 font-semibold text-sm active:scale-95 transition-all">
-                Илүүг үзэх
+            {recommended.length > 0 && !isReachingEndRecommended && (
+              <button
+                onClick={() => {
+                  triggerHaptic();
+                  setSizeRecommended(sizeRecommended + 1);
+                }}
+                disabled={isLoadingMoreRecommended}
+                className="w-full mt-4 py-3.5 bg-white border border-gray-200 rounded-2xl text-gray-500 font-semibold text-sm active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                {isLoadingMoreRecommended ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-gray-300 border-t-orange-500 rounded-full animate-spin" />
+                    <span>Ачаалж байна...</span>
+                  </>
+                ) : (
+                  'Илүүг үзэх'
+                )}
               </button>
             )}
           </section>
@@ -275,7 +321,7 @@ function SearchContent() {
   }
 
   /* ─── LOADING STATE ─── */
-  if (isLoading) {
+  if (isLoadingResults && q.trim()) {
     return (
       <div className="min-h-screen bg-[#F2F2F7] py-12 flex items-center justify-center">
         <div className="text-center">
@@ -364,6 +410,29 @@ function SearchContent() {
               </motion.div>
             ))}
           </motion.div>
+        )}
+
+        {/* View More for Results */}
+        {products.length > 0 && !isReachingEndResults && (
+          <div className="mt-8 pb-12">
+            <button
+              onClick={() => {
+                triggerHaptic();
+                setSizeResults(sizeResults + 1);
+              }}
+              disabled={isLoadingMoreResults}
+              className="w-full py-4 bg-white border border-gray-200 rounded-2xl text-gray-500 font-bold text-sm active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm"
+            >
+              {isLoadingMoreResults ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-gray-300 border-t-orange-500 rounded-full animate-spin" />
+                  <span>Ачаалж байна...</span>
+                </>
+              ) : (
+                'Илүүг үзэх'
+              )}
+            </button>
+          </div>
         )}
       </div>
     </div>

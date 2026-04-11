@@ -6,6 +6,7 @@ import { Tag, Package, Clock, Sparkles, ArrowUpDown, SlidersHorizontal, X } from
 import PremiumProductGrid from '@/components/PremiumProductGrid';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/context/LanguageContext';
+import { getApiUrl } from '@/lib/utils';
 
 interface Product {
   id: string;
@@ -40,11 +41,21 @@ export default function DealsPage() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch('/api/products?featured=true&limit=50');
-        const data = await response.json();
-        setProducts(data.products || []);
+        const url = getApiUrl('/api/products?featured=true&limit=50');
+        const response = await fetch(url);
+        
+        const contentType = response.headers.get('content-type');
+        if (response.ok && contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          setProducts(data.products || []);
+        } else {
+          console.error('[Deals] Invalid API response:', {
+            status: response.status,
+            contentType
+          });
+        }
       } catch (error) {
-        // Error handled silently
+        console.error('[Deals] Fetch error:', error);
       } finally {
         setLoading(false);
       }

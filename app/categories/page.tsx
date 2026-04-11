@@ -1,15 +1,17 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import Image from 'next/image';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { Filter, ShoppingCart, Eye, ChevronDown, Sparkles, LayoutGrid, List } from 'lucide-react';
-import { formatPrice, getStarRating, formatCurrency } from '@/lib/utils';
+import { ChevronDown, LayoutGrid, List } from 'lucide-react';
+import { getApiUrl } from '@/lib/utils';
 import { useCartStore } from '@/store/cartStore';
 import toast from 'react-hot-toast';
+import useSWR from 'swr';
 import UniversalProductCard from '@/components/UniversalProductCard';
 import type { Product } from '@/models/Product';
 import type { Category } from '@/models/Category';
+
+const swrFetcher = (url: string) => fetch(url).then(r => r.json());
 
 // Emoji mapping for categories (reused for consistency)
 const CATEGORY_EMOJIS: Record<string, string> = {
@@ -40,111 +42,47 @@ export default function CategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>('all');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [attributes, setAttributes] = useState<Attribute[]>([]);
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<string>('newest');
-  const [scrolled, setScrolled] = useState(false);
-
-  const { scrollY } = useScroll();
-
-  // Optimized Apple-style collapse with cubic-bezier easing for smoothness
-  const headerPadding = useTransform(scrollY, [0, 120], ['1.5rem', '0.75rem'], { clamp: true });
-  const titleOpacity = useTransform(scrollY, [0, 60], [1, 0], { clamp: true });
-  const titleHeight = useTransform(scrollY, [0, 80], ['auto', '0px'], { clamp: true });
-  const titleScale = useTransform(scrollY, [0, 80], [1, 0.95], { clamp: true });
-  const titleY = useTransform(scrollY, [0, 80], [0, -10], { clamp: true });
-  const pillMarginTop = useTransform(scrollY, [0, 100], ['1rem', '0rem'], { clamp: true });
 
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.015,
-        delayChildren: 0.05
-      }
+      transition: { staggerChildren: 0.015, delayChildren: 0.05 }
     }
   };
 
   const itemVariants: any = {
-    hidden: { opacity: 0, y: 40, scale: 0.85, rotateX: 15 },
+    hidden: { opacity: 0, y: 20, scale: 0.96 },
     show: {
       opacity: 1,
       y: 0,
       scale: 1,
-      rotateX: 0,
-      transition: {
-        type: "spring",
-        stiffness: 260,
-        damping: 24,
-        mass: 1
-      }
+      transition: { type: 'spring', stiffness: 300, damping: 28 }
     }
   };
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const addItem = useCartStore((state) => state.addItem);
 
-  // Fetch products, categories, and attributes from API
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [productsRes, categoriesRes, attributesRes] = await Promise.all([
-          fetch('/api/products?limit=100'),
-          fetch('/api/categories'),
-          fetch('/api/attributes'),
-        ]);
+  // SWR-cached fetches — data is instant on back-navigation
+  const { data: productsData, isLoading: isLoadingProducts } = useSWR(
+    getApiUrl('/api/products?limit=100'),
+    swrFetcher,
+    { dedupingInterval: 30000, revalidateOnFocus: false }
+  );
+  const { data: categoriesData, isLoading: isLoadingCategories } = useSWR(
+    getApiUrl('/api/categories'),
+    swrFetcher,
+    { dedupingInterval: 60000, revalidateOnFocus: false }
+  );
 
-        if (!productsRes.ok || !categoriesRes.ok || !attributesRes.ok) {
-          console.error('One or more fetch requests failed', {
-            products: productsRes.status,
-            categories: categoriesRes.status,
-            attributes: attributesRes.status
-          });
-        }
+  const products: Product[] = productsData?.products || [];
+  const categories: Category[] = categoriesData?.categories || (Array.isArray(categoriesData) ? categoriesData : []);
+  const isLoading = isLoadingProducts || isLoadingCategories;
 
-        const productsText = await productsRes.text();
-        const categoriesText = await categoriesRes.text();
-        const attributesText = await attributesRes.text();
-
-        let productsData, categoriesData, attributesData;
-
-        try {
-          productsData = JSON.parse(productsText);
-          categoriesData = JSON.parse(categoriesText);
-          attributesData = JSON.parse(attributesText);
-        } catch (parseError) {
-          console.error('JSON Parse Error. Server returned:', {
-            products: productsText.substring(0, 100),
-            categories: categoriesText.substring(0, 100),
-            attributes: attributesText.substring(0, 100)
-          });
-          throw parseError;
-        }
-
-        // API returns { products, nextCursor, hasMore }
-        setProducts(productsData.products || []);
-        setCategories(categoriesData.categories || (Array.isArray(categoriesData) ? categoriesData : []));
-        setAttributes(attributesData);
-      } catch (error) {
-        // Silently handle error
-        console.error('Failed to fetch data', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  // Data fetching is now handled by useSWR above (cached, instant on back-nav)
 
   const getEmoji = (slug: string) => {
     const key = Object.keys(CATEGORY_EMOJIS).find(k => slug.toLowerCase().includes(k));
@@ -320,80 +258,54 @@ export default function CategoriesPage() {
           {/* MAIN CONTENT */}
           <main className="flex-1 lg:min-w-0">
 
-            {/* Header & Filters */}
-            <motion.div
-              style={{ padding: headerPadding, top: 'calc(52px + env(safe-area-inset-top))' }}
-              className="bg-white lg:rounded-3xl shadow-sm border-b lg:border border-gray-100 sticky z-20 will-change-[padding]"
+            {/* Header & Filters — solid/fixed, no scroll transforms */}
+            <div
+              style={{ top: 'calc(52px + env(safe-area-inset-top))' }}
+              className="bg-white lg:rounded-3xl shadow-sm border-b lg:border border-gray-100 sticky z-20 px-4 py-3"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <motion.div
-                  style={{
-                    height: titleHeight,
-                    opacity: titleOpacity,
-                    scale: titleScale,
-                    y: titleY,
-                    marginBottom: titleOpacity
-                  }}
-                  className="overflow-hidden origin-top-left lg:h-auto lg:mb-0 lg:opacity-100 lg:scale-100 lg:translate-y-0 will-change-[height,opacity,transform]"
-                >
-                  <h1 className="text-xl lg:text-4xl font-black text-gray-900 mb-1">
-                    {selectedCategory === 'all' ? 'Бүх бараа' : categories.find(c => c.id === selectedCategory)?.name}
-                  </h1>
-                  <p className="text-sm lg:text-base text-gray-600">
-                    {sortedProducts.length} бараа олдлоо
-                  </p>
-                </motion.div>
-
-                <div className="flex items-center gap-3 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
-                  <div className="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-100">
-                    <button
-                      onClick={() => setViewMode('grid')}
-                      className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-soyol shadow-sm' : 'text-gray-400 hover:text-gray-600'
-                        }`}
-                    >
-                      <LayoutGrid className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => setViewMode('list')}
-                      className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white text-soyol shadow-sm' : 'text-gray-400 hover:text-gray-600'
-                        }`}
-                    >
-                      <List className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-gray-50 border border-gray-100 text-gray-700 text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-soyol/20"
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-100">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-soyol shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                   >
-                    <option value="newest">Шинэ</option>
-                    <option value="price-asc">Үнэ ↑</option>
-                    <option value="price-desc">Үнэ ↓</option>
-                    <option value="name-asc">Нэр А-Я</option>
-                  </select>
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white text-soyol shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
                 </div>
+
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-gray-50 border border-gray-100 text-gray-700 text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-soyol/20"
+                >
+                  <option value="newest">Шинэ</option>
+                  <option value="price-asc">Үнэ ↑</option>
+                  <option value="price-desc">Үнэ ↓</option>
+                  <option value="name-asc">Нэр А-Я</option>
+                </select>
               </div>
 
-              {/* Mobile Horizontal Category Pills (Alternative to Sidebar) */}
-              <motion.div
-                style={{ marginTop: pillMarginTop }}
-                className="relative lg:hidden -mx-4"
-              >
+              {/* Mobile Category Pills */}
+              <div className="relative lg:hidden -mx-4 mt-2">
                 <div className="flex gap-2 px-4 overflow-x-auto scrollbar-hide pb-2 -mb-2">
                   <motion.button
                     onClick={() => setSelectedCategory('all')}
                     whileTap={{ scale: 0.95 }}
-                    className={`relative flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === 'all'
-                      ? 'text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
+                    className={`relative flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold ${
+                      selectedCategory === 'all' ? 'text-white' : 'bg-gray-100 text-gray-700'
+                    }`}
                   >
                     {selectedCategory === 'all' && (
                       <motion.div
                         layoutId="activeCategory"
                         className="absolute inset-0 bg-soyol rounded-full shadow-md shadow-orange-200"
-                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                       />
                     )}
                     <span className="relative z-10">Бүгд</span>
@@ -403,27 +315,25 @@ export default function CategoriesPage() {
                       key={`mc-${cat.id || 'empty'}-${idx}`}
                       onClick={() => setSelectedCategory(cat.id)}
                       whileTap={{ scale: 0.95 }}
-                      className={`relative flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === cat.id
-                        ? 'text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
+                      className={`relative flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold ${
+                        selectedCategory === cat.id ? 'text-white' : 'bg-gray-100 text-gray-700'
+                      }`}
                     >
                       {selectedCategory === cat.id && (
                         <motion.div
                           layoutId="activeCategory"
                           className="absolute inset-0 bg-soyol rounded-full shadow-md shadow-orange-200"
-                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                         />
                       )}
                       <span className="relative z-10">{cat.name}</span>
                     </motion.button>
                   ))}
                 </div>
-                {/* Fade Gradients */}
                 <div className="absolute left-0 top-0 bottom-2 w-6 bg-gradient-to-r from-white to-transparent pointer-events-none" />
                 <div className="absolute right-0 top-0 bottom-2 w-6 bg-gradient-to-l from-white to-transparent pointer-events-none" />
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
 
             {/* Product Grid */}
             <AnimatePresence mode="wait">

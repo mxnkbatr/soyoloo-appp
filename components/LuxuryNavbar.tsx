@@ -8,6 +8,7 @@ import {
   User,
   Heart,
   ShoppingBag,
+  Home,
   Menu,
   X,
   Globe,
@@ -189,7 +190,7 @@ export default function LuxuryNavbar() {
   ];
 
   const mobileNavItems = [
-    { name: t("nav", "home"), href: "/", icon: Sparkles },
+    { name: t("nav", "home") || "Нүүр", href: "/", icon: Home },
     {
       name: t("nav", "categories") || "Категори",
       href: "/categories",
@@ -850,16 +851,20 @@ export default function LuxuryNavbar() {
                   </div>
                   <span
                     className={`text-[10px] transition-all duration-200 ${isActive
-                        ? "font-bold text-[#FF5000]"
-                        : "font-medium text-slate-400"
+                      ? "font-bold text-[#FF5000]"
+                      : "font-medium text-slate-400"
                       }`}
                   >
                     {item.name}
                   </span>
-                  {/* Active dot indicator */}
-                  <div
-                    className={`w-1 h-1 rounded-full transition-all duration-200 ${isActive ? "bg-[#FF5000]" : "bg-transparent"
-                      }`}
+                  {/* Active indicator dot - unified and subtle */}
+                  <motion.div
+                    initial={false}
+                    animate={{
+                      scale: isActive ? 1 : 0,
+                      opacity: isActive ? 1 : 0
+                    }}
+                    className="w-1 h-1 rounded-full bg-[#FF5000] mt-0.5"
                   />
                 </Link>
               );

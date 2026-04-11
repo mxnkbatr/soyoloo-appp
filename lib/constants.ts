@@ -7,7 +7,7 @@ export const SITE_CONFIG = {
   name: 'Soyol Video Shop',
   description: 'Бүх бараа бөөний үнээр',
   phone: '77-181818',
-  email: 'info@soyol.mn',
+  email: 'info@soyolvideoshop.mn',
 } as const;
 
 export const NAV_LINKS = [

@@ -21,7 +21,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://soyol.mn'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://soyolvideoshop.mn'),
   title: {
     default: `${SITE_CONFIG.name} - ${SITE_CONFIG.description}`,
     template: `%s | ${SITE_CONFIG.name}`,
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'mn_MN',
-    url: 'https://soyol.mn',
+    url: 'https://soyolvideoshop.mn',
     siteName: SITE_CONFIG.name,
     title: `${SITE_CONFIG.name} - ${SITE_CONFIG.description}`,
     description: 'Олон улсын чанартай бүтээгдэхүүнийг бөөний үнээр',

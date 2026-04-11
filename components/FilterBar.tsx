@@ -31,8 +31,8 @@ export default function FilterBar({ activeFilter, onFilterChange }: FilterBarPro
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm whitespace-nowrap transition-all ${isActive
-                    ? 'bg-soyol text-white shadow-sm glow-orange'
-                    : 'bg-white text-gray-700 hover:bg-soyol/10 border-2 border-soyol'
+                  ? 'bg-soyol text-white shadow-sm glow-orange'
+                  : 'bg-white text-gray-700 hover:bg-soyol/10 border-2 border-soyol'
                   }`}
               >
                 <Icon className="w-4 h-4" />

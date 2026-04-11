@@ -59,7 +59,7 @@ export const OrderConfirmationEmail: React.FC<Readonly<OrderConfirmationEmailPro
 
                 <div style={{ marginTop: '40px', paddingTop: '30px', borderTop: '1px solid #eee', fontSize: '12px', color: '#999', textAlign: 'center' }}>
                     <p>Хэрэв танд асуулт байвал бидэнтэй холбогдоорой.</p>
-                    <p>Утас: 7711-XXXX | Email: support@soyol.mn</p>
+                    <p>Утас: 77-181818 | Email: info@soyolvideoshop.mn</p>
                 </div>
             </div>
         </div>

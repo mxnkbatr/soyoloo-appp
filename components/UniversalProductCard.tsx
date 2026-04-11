@@ -126,7 +126,7 @@ const UniversalProductCard = memo(({
     <div
       ref={cardRef}
       className={`group relative reveal-card gpu ${isVisible ? "visible" : ""} active:scale-[0.98] transition-transform`}
-      style={{ 
+      style={{
         touchAction: "manipulation"
       }}
     >

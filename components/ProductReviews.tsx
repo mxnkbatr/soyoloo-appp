@@ -62,13 +62,22 @@ export default function ProductReviews({ productId }: { productId: string }) {
     setIsLoading(true);
     try {
       const res = await fetch(`/api/reviews?productId=${productId}`);
-      if (res.ok) {
+      
+      // Robust check for JSON response to avoid Unexpected token '<' errors
+      const contentType = res.headers.get('content-type');
+      if (res.ok && contentType && contentType.includes('application/json')) {
         const data = await res.json();
         setReviews(data.reviews || []);
         setHasPurchased(data.hasPurchased || false);
+      } else {
+        console.error('[ProductReviews] Invalid API response:', {
+          status: res.status,
+          contentType: contentType,
+        });
+        // Silent fail on load or show minimal error
       }
     } catch (error) {
-      toast.error('Үнэлгээг татахад алдаа гарлаа.');
+      console.error('[ProductReviews] Fetch error:', error);
     } finally {
       setIsLoading(false);
     }

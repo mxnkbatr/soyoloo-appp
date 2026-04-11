@@ -23,8 +23,10 @@ export function useProducts(filters: Record<string, any> = {}) {
       }
     });
 
-    // Add limit
-    params.set('limit', '18');
+    // Add limit (default to 18 if not provided in filters)
+    if (!filters.limit) {
+      params.set('limit', '18');
+    }
 
     // Add cursor if not the first page
     if (pageIndex > 0 && previousPageData?.nextCursor) {
@@ -40,6 +42,8 @@ export function useProducts(filters: Record<string, any> = {}) {
     {
       revalidateFirstPage: false,
       persistSize: true,
+      dedupingInterval: 30000,      // cache for 30s — instant back-navigation
+      revalidateOnFocus: false,     // don't re-fetch when app regains focus
     }
   );
 

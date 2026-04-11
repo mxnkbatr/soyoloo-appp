@@ -6,6 +6,7 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { Banner } from '@/models/Banner';
+import { getApiUrl } from '@/lib/utils';
 
 export default function BannerSlider() {
   const [banners, setBanners] = useState<Banner[]>([]);
@@ -33,11 +34,31 @@ export default function BannerSlider() {
   }, [banners.length, currentIndex]);
 
   useEffect(() => {
-    fetch('/api/banners')
-      .then(res => res.json())
-      .then(data => setBanners(data.banners || []))
-      .catch(err => console.error('Error fetching banners:', err))
-      .finally(() => setIsLoading(false));
+    const fetchBanners = async () => {
+      try {
+        const response = await fetch(getApiUrl('/api/banners'));
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Ensure standard JSON content-type to avoid parsing HTML as JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new TypeError("Oops, we haven't got JSON!");
+        }
+
+        const data = await response.json();
+        setBanners(data.banners || []);
+      } catch (err) {
+        console.error('Error fetching banners:', err);
+        // Fallback to empty array if fetch fails
+        setBanners([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBanners();
   }, []);
 
   useEffect(() => {

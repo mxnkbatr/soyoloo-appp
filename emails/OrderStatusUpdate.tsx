@@ -69,7 +69,7 @@ export const OrderStatusUpdateEmail: React.FC<Readonly<OrderStatusUpdateEmailPro
                     )}
 
                     <div style={{ marginTop: '40px', textAlign: 'center' }}>
-                        <a href={`https://soyol.mn/orders/${order.id}`} style={{
+                        <a href={`https://soyolvideoshop.mn/orders/${order.id}`} style={{
                             display: 'inline-block',
                             backgroundColor: '#1a1a1a',
                             color: '#ffffff',
@@ -82,7 +82,7 @@ export const OrderStatusUpdateEmail: React.FC<Readonly<OrderStatusUpdateEmailPro
                     </div>
 
                     <div style={{ marginTop: '40px', paddingTop: '30px', borderTop: '1px solid #eee', fontSize: '12px', color: '#999', textAlign: 'center' }}>
-                        <p>Утас: 7711-XXXX | Email: support@soyol.mn</p>
+                        <p>Утас: 77-181818 | Email: info@soyolvideoshop.mn</p>
                     </div>
                 </div>
             </div>
