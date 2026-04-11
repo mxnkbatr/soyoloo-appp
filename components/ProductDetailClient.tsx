@@ -341,54 +341,61 @@ export default function ProductDetailClient({
                   className="relative bg-white overflow-hidden lg:rounded-2xl"
                   style={{ aspectRatio: "1/1" }}
                 >
-                  <div className="md:hidden w-full h-full relative overflow-hidden">
-                    <motion.div
-                      drag="x"
-                      dragConstraints={{ left: 0, right: 0 }}
-                      dragElastic={0.2}
-                      whileTap={{ scale: 0.98 }}
-                      onDragEnd={(_, info) => {
-                        // Calculate simple swipe power based on offset and velocity
-                        const swipePower = Math.abs(info.offset.x) * 0.5 + Math.abs(info.velocity.x) * 0.5;
-                        const threshold = 60;
-
-                        if (info.offset.x < -threshold || (info.velocity.x < -400 && info.offset.x < -10)) {
-                          if (activeImageIndex < images.length - 1) {
-                            setActiveImageIndex((p) => p + 1);
-                          }
-                        } else if (info.offset.x > threshold || (info.velocity.x > 400 && info.offset.x > 10)) {
-                          if (activeImageIndex > 0) {
-                            setActiveImageIndex((p) => p - 1);
-                          }
+                  <div className="md:hidden w-full h-full relative overflow-hidden select-none"
+                    onTouchStart={(e) => {
+                      const touch = e.touches[0];
+                      (e.currentTarget as any)._touchStartX = touch.clientX;
+                    }}
+                    onTouchEnd={(e) => {
+                      const startX = (e.currentTarget as any)._touchStartX ?? 0;
+                      const endX = e.changedTouches[0].clientX;
+                      const diff = endX - startX;
+                      if (Math.abs(diff) > 40) {
+                        if (diff < 0 && activeImageIndex < images.length - 1) {
+                          setActiveImageIndex(p => p + 1);
+                        } else if (diff > 0 && activeImageIndex > 0) {
+                          setActiveImageIndex(p => p - 1);
                         }
-                      }}
-                      animate={{ x: `-${activeImageIndex * 100}%` }}
-                      transition={{ 
-                        type: "spring", 
-                        stiffness: 320, 
-                        damping: 35,
-                        mass: 0.5,
-                      }}
-                      className="flex w-full h-full cursor-grab active:cursor-grabbing touch-pan-y"
-                    >
-                      {images.map((img, i) => (
-                        <div
-                          key={i}
-                          className="w-full h-full shrink-0 relative p-6"
-                        >
-                          <Image
-                            src={img}
-                            alt={product.name}
-                            fill
-                            className="object-contain pointer-events-none"
-                            priority={i === 0}
-                          />
-                        </div>
-                      ))}
-                    </motion.div>
+                      }
+                    }}
+                  >
+                    <AnimatePresence mode="popLayout" initial={false}>
+                      <motion.div
+                        key={activeImageIndex}
+                        initial={{ opacity: 0, scale: 1.04 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.97 }}
+                        transition={{
+                          opacity: { duration: 0.22, ease: [0.25, 0.1, 0.25, 1] },
+                          scale: { duration: 0.28, ease: [0.25, 0.1, 0.25, 1] },
+                        }}
+                        className="absolute inset-0 p-6"
+                      >
+                        <Image
+                          src={images[activeImageIndex]}
+                          alt={product.name}
+                          fill
+                          className="object-contain pointer-events-none"
+                          priority={activeImageIndex === 0}
+                        />
+                      </motion.div>
+                    </AnimatePresence>
+
+                    {/* Apple-style dot indicators */}
                     {images.length > 1 && (
-                      <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white text-[11px] font-medium px-2 py-0.5 rounded-full tracking-wide">
-                        {activeImageIndex + 1}/{images.length}
+                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-[5px]">
+                        {images.map((_, i) => (
+                          <motion.div
+                            key={i}
+                            animate={{
+                              width: activeImageIndex === i ? 16 : 5,
+                              backgroundColor: activeImageIndex === i ? '#FF5000' : 'rgba(0,0,0,0.2)',
+                            }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                            className="h-[5px] rounded-full"
+                            onClick={() => setActiveImageIndex(i)}
+                          />
+                        ))}
                       </div>
                     )}
                   </div>
@@ -514,12 +521,12 @@ export default function ProductDetailClient({
                     {images.map((img, i) => (
                       <motion.button
                         key={i}
-                        whileTap={{ scale: 0.92 }}
+                        whileTap={{ scale: 0.88 }}
                         onClick={() => setActiveImageIndex(i)}
                         className={`relative shrink-0 w-14 lg:w-18 h-14 lg:h-18 rounded-2xl overflow-hidden border-2 transition-all duration-300 bg-white shadow-sm ${
                           activeImageIndex === i 
-                            ? "border-orange-500 ring-2 ring-orange-500/20 opacity-100" 
-                            : "border-transparent opacity-50 hover:opacity-80"
+                            ? "border-orange-500 shadow-[0_0_0_3px_rgba(255,80,0,0.15)]" 
+                            : "border-transparent opacity-45 hover:opacity-75"
                         }`}
                       >
                         <Image
@@ -529,12 +536,18 @@ export default function ProductDetailClient({
                           className="object-contain p-1.5"
                           sizes="(max-width: 768px) 56px, 72px"
                         />
-                        {activeImageIndex === i && (
-                          <motion.div 
-                            layoutId="activeThumb"
-                            className="absolute inset-0 bg-orange-500/5 pointer-events-none"
-                          />
-                        )}
+                        {/* Active thumbnail scale-up overlay */}
+                        <AnimatePresence>
+                          {activeImageIndex === i && (
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute inset-0 bg-orange-500/8 pointer-events-none rounded-xl"
+                            />
+                          )}
+                        </AnimatePresence>
                       </motion.button>
                     ))}
                   </div>
@@ -685,7 +698,7 @@ export default function ProductDetailClient({
                     )}
                   </div>
 
-                  <div className="flex gap-3 mb-6">
+                  <div className="hidden md:flex gap-3 mb-6">
                     <motion.button
                       whileTap={{ scale: 0.98 }}
                       onClick={handleAddToCart}
@@ -881,8 +894,11 @@ export default function ProductDetailClient({
 
         </div>
 
-        <div className="hidden" style={{ bottom: "calc(64px + env(safe-area-inset-bottom, 0px))" }}>
-          <div className="flex items-center gap-3 px-4 py-3 pb-[calc(8px+env(safe-area-inset-bottom,0px))] md:pb-3">
+        <div 
+          className="fixed md:hidden left-0 right-0 z-[100] bg-white/95 backdrop-blur-xl border-t border-black/[0.06] shadow-[0_-8px_30px_rgba(0,0,0,0.04)]" 
+          style={{ bottom: "calc(64px + env(safe-area-inset-bottom, 0px))" }}
+        >
+          <div className="flex items-center gap-3 px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
             <div className="flex flex-col min-w-0 mr-auto">
               <span className="text-[9px] text-[#8E8E93] font-bold uppercase tracking-[0.05em] mb-0.5">
                 НИЙТ ҮНЭ

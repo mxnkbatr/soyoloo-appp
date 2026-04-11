@@ -358,9 +358,7 @@ export default function LuxuryNavbar() {
               </div>
 
               {/* Right Icons */}
-              <motion.div
-                animate={{ scale: scrolled ? 0.9 : 1 }}
-                transition={{ duration: 0.3 }}
+              <div
                 className="flex items-center gap-1.5 flex-shrink-0"
               >
                 {/* User menu */}
@@ -536,7 +534,7 @@ export default function LuxuryNavbar() {
                     )}
                   </motion.div>
                 </Link>
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>

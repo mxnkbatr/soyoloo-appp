@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import LuxuryNavbar from '@components/LuxuryNavbar';
 import ClientLayout from './ClientLayout';
+import CapacitorBackButton from '@components/providers/CapacitorBackButton';
 import { SITE_CONFIG } from '@lib/constants';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 const inter = Inter({
@@ -82,6 +83,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content={SITE_CONFIG.name} />
       </head>
       <body className={`${inter.className} min-h-screen bg-white antialiased`}>
+        <CapacitorBackButton />
         <ClientLayout>
           <LuxuryNavbar />
           <main className="min-h-screen pb-16 md:pb-0 relative z-0">{children}</main>

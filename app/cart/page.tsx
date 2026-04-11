@@ -27,9 +27,9 @@ export default function CartPage() {
         return (
             <div className="min-h-screen bg-[#F2F2F7] pt-14 pb-28 flex flex-col items-center relative overflow-hidden">
                 <NativeHeader title={t('cart', 'title')} />
-                
+
                 <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-orange-400/8 blur-[90px] pointer-events-none" />
-                
+
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -126,8 +126,8 @@ export default function CartPage() {
 
     return (
         <div className="min-h-screen bg-[#F5F5F3] pt-14 pb-[calc(env(safe-area-inset-bottom)+260px)] lg:pb-[260px]">
-            <NativeHeader 
-                title={t('cart', 'title')} 
+            <NativeHeader
+                title={t('cart', 'title')}
                 subtitle={`${getTotalItems()} бараа`}
             />
 
@@ -177,8 +177,13 @@ export default function CartPage() {
                     )}
                 </div>
 
+                {/* Inline Payment/Checkout Summary moved ABOVE suggested products */}
+                <div className="mt-6">
+                    <TaobaoStickyFooter />
+                </div>
+
                 {/* Recommendation Guide */}
-                <div className="mt-10">
+                <div className="mt-4">
                     <div className="flex items-center justify-between mb-5 px-1.5">
                         <h3 className="text-[13px] font-bold text-gray-400 uppercase tracking-widest">Танд санал болгох бараа</h3>
                         <ChevronRight className="w-4 h-4 text-gray-300" />
@@ -202,9 +207,6 @@ export default function CartPage() {
                     </div>
                 </div>
             </div>
-
-            {/* Sticky Bottom Footer */}
-            <TaobaoStickyFooter />
         </div>
     );
 }

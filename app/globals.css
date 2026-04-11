@@ -540,3 +540,23 @@ select {
     transform: translateY(0);
   }
 }
+
+/* ── Disable hover flashes on touch devices ─────────────────────────────── */
+/* Hover events on Android/iOS fire on tap and create a visual flash.        */
+/* Disabling them makes taps feel instant — no visual change on first tap.   */
+@media (hover: none) and (pointer: coarse) {
+  .card-clean:hover {
+    transform: none !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+    border-color: #f0f0f0 !important;
+  }
+
+  .glow-orange:hover {
+    transform: none !important;
+    box-shadow: 0 4px 20px rgba(255, 121, 0, 0.3) !important;
+  }
+
+  .btn-orange-gradient:hover {
+    transform: none !important;
+  }
+}

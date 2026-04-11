@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValueEvent } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
@@ -12,37 +12,26 @@ export default function FloatingChatButton() {
     const [isOpen, setIsOpen] = useState(false);
     const [showButton, setShowButton] = useState(true);
     const lastScrollY = useRef(0);
-    const [yOffset, setYOffset] = useState(0);
 
-    // Framer Motion scroll tracking
-    const { scrollY } = useScroll();
-
-    // Create a springy motion value for the vertical offset (visual feedback)
-    const springY = useSpring(0, { stiffness: 100, damping: 20 });
-
-    useMotionValueEvent(scrollY, "change", (latest) => {
-        const diff = latest - lastScrollY.current;
-
-        // Scroll to hide logic
-        if (latest > 100) { // Only hide after some initial scroll
-            if (diff > 10) { // Scrolling DOWN
-                setShowButton(false);
-            } else if (diff < -10) { // Scrolling UP
+    // Standard passive scroll listener — zero Framer Motion overhead per frame
+    useEffect(() => {
+        const handleScroll = () => {
+            const latest = window.scrollY;
+            const diff = latest - lastScrollY.current;
+            if (latest > 100) {
+                if (diff > 10) {
+                    setShowButton(false);
+                } else if (diff < -10) {
+                    setShowButton(true);
+                }
+            } else {
                 setShowButton(true);
             }
-        } else {
-            setShowButton(true);
-        }
-
-        // Tactile bounce effect
-        if (Math.abs(diff) > 5) {
-            const targetOffset = diff > 0 ? -10 : 10;
-            springY.set(targetOffset);
-            setTimeout(() => springY.set(0), 150);
-        }
-
-        lastScrollY.current = latest;
-    });
+            lastScrollY.current = latest;
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // Hide on specific pages
     useEffect(() => {
@@ -77,7 +66,7 @@ export default function FloatingChatButton() {
                                 ? 'md:top-1/2 md:bottom-auto bottom-[140px]'
                                 : 'top-1/2'
                             }`}
-                        style={{ y: isProductPage ? 0 : springY }}
+                        style={{ y: isProductPage ? 0 : undefined }}
                     >
                         <motion.button
                             onClick={toggleChat}
